@@ -1,17 +1,79 @@
-import { Heart, Share2, Star, Clock, Plus, ArrowRight } from 'lucide-react';
+import { Heart, Share2, Star, Clock, Plus, ArrowRight, X } from 'lucide-react';
+import { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
-interface SalonDetailsPageProps {
-  onBack: () => void;
-  onCheckout: () => void;
-}
+export function SalonDetailsPage() {
+  const navigate = useNavigate();
+  const params = useParams(); // Might use 'params.id' later to fetch salon details
+  const id = params.id;
+  if (!id) console.log("Salon ID:", id); // Suppress TS6133 by logging
+  
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState('');
 
-export function SalonDetailsPage({ onBack, onCheckout }: SalonDetailsPageProps) {
+  const handleContinueToBook = () => {
+    setShowPhoneModal(true);
+  };
+
+  const handlePhoneSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (phoneNumber.trim().length >= 10) {
+      setShowPhoneModal(false);
+      navigate('/checkout');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#FDFBF9] font-sans text-stone-800">
+      
+      {/* Phone Number Modal */}
+      {showPhoneModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/40 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-3xl w-full max-w-md p-8 shadow-2xl relative">
+            <button 
+              onClick={() => setShowPhoneModal(false)}
+              className="absolute top-6 right-6 text-stone-400 hover:text-stone-600 transition-colors"
+            >
+              <X size={20} />
+            </button>
+            
+            <h2 className="font-serif text-2xl font-medium text-[#0A2640] mb-2">Almost there!</h2>
+            <p className="text-stone-500 mb-8">Please enter your phone number to proceed with booking. We'll send your confirmation details here.</p>
+            
+            <form onSubmit={handlePhoneSubmit} className="flex flex-col gap-6">
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium text-stone-600">Phone Number</label>
+                <div className="flex gap-3">
+                  <div className="bg-[#F6F5F2] px-4 py-3.5 rounded-xl border border-stone-200 text-stone-500 font-medium flex items-center shrink-0">
+                    +1
+                  </div>
+                  <input 
+                    type="tel" 
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    placeholder="(555) 000-0000" 
+                    required
+                    className="bg-[#F6F5F2] border-transparent focus:border-[#C49B89] focus:ring-1 focus:ring-[#C49B89] focus:bg-white rounded-xl px-5 py-3.5 outline-none transition-all text-stone-700 w-full" 
+                  />
+                </div>
+              </div>
+              
+              <button 
+                type="submit"
+                disabled={phoneNumber.length < 10}
+                className="w-full bg-[#CA9A86] hover:bg-[#B38775] disabled:bg-stone-300 disabled:cursor-not-allowed text-white px-6 py-4 rounded-xl font-medium transition-colors shadow-sm"
+              >
+                Continue to Checkout
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Detail View Navbar */}
       <nav className="flex items-center justify-between px-8 py-5 mx-auto max-w-6xl">
         <button 
-          onClick={onBack}
+          onClick={() => navigate('/')}
           className="text-2xl font-semibold font-serif italic text-[#313131] hover:text-[#C49B89] transition-colors"
         >
           Glowup
@@ -144,7 +206,7 @@ export function SalonDetailsPage({ onBack, onCheckout }: SalonDetailsPageProps) 
             </div>
 
             <button 
-              onClick={onCheckout}
+              onClick={handleContinueToBook}
               className="w-full bg-[#CA9A86] hover:bg-[#B38775] text-white px-6 py-4 rounded-2xl font-medium transition-colors flex items-center justify-center gap-2 shadow-sm relative overflow-hidden"
             >
               Continue to Book

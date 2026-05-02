@@ -1,11 +1,18 @@
 import { MapPin, Search, CheckCircle2, Star, Calendar, Heart, Loader2 } from 'lucide-react';
 
+import { useNavigate } from 'react-router-dom';
+
 interface LandingPageProps {
   location: string;
   setLocation: (loc: string) => void;
   isLoadingLocation: boolean;
   onUseMyLocation: () => void;
-  onSelectSalon: (salon: string) => void;
+  onSelectSalon?: (salon: string) => void;
+}
+
+export function LandingPageWrapper(props: Omit<LandingPageProps, 'onSelectSalon'>) {
+  const navigate = useNavigate();
+  return <LandingPage {...props} onSelectSalon={(id: string) => navigate(`/salon/${id}`)} />;
 }
 
 export function LandingPage({
@@ -126,7 +133,7 @@ export function LandingPage({
               
               {/* Card 1 */}
               <div 
-                onClick={() => onSelectSalon('aura')}
+                onClick={() => onSelectSalon && onSelectSalon('aura')}
                 className="bg-white rounded-2xl p-4 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04)] border border-stone-100 flex gap-5 hover:shadow-md transition-shadow group cursor-pointer"
               >
                 <div className="w-[120px] h-[120px] shrink-0 rounded-xl overflow-hidden bg-stone-100">
@@ -156,7 +163,7 @@ export function LandingPage({
 
               {/* Card 2 */}
               <div 
-                onClick={() => onSelectSalon('noir')}
+                onClick={() => onSelectSalon && onSelectSalon('noir')}
                 className="bg-white rounded-2xl p-4 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.04)] border border-stone-100 flex gap-5 hover:shadow-md transition-shadow group cursor-pointer"
               >
                 <div className="w-[120px] h-[120px] shrink-0 rounded-xl overflow-hidden bg-stone-100">

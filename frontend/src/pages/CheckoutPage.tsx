@@ -1,24 +1,22 @@
 import { ArrowLeft, User, CreditCard, Calendar, MapPin, Lock, CheckCircle2, Heart, Share2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
-interface CheckoutPageProps {
-  onBack: () => void;
-  onBackHome: () => void;
-}
+export function CheckoutPage() {
+  const navigate = useNavigate();
 
-export function CheckoutPage({ onBack, onBackHome }: CheckoutPageProps) {
   return (
     <div className="min-h-screen bg-[#FDFBF9] font-sans text-stone-800">
       {/* Detail View Navbar */}
       <nav className="flex items-center justify-between px-8 py-5 mx-auto max-w-6xl">
         <div className="flex items-center gap-4">
            <button 
-              onClick={onBack}
+              onClick={() => navigate(-1)}
               className="w-10 h-10 flex items-center justify-center border border-stone-200 text-stone-500 rounded-lg hover:border-stone-400 hover:text-stone-800 transition-colors bg-white shadow-sm"
             >
               <ArrowLeft size={18} strokeWidth={2.5}/>
            </button>
            <button 
-            onClick={onBackHome}
+            onClick={() => navigate('/')}
             className="text-2xl font-semibold font-serif italic text-[#313131] hover:text-[#C49B89] transition-colors"
           >
             Glowup

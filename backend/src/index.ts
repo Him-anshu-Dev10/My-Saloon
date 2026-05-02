@@ -1,26 +1,30 @@
-import express, { Request, Response } from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
+import app from './app';
+import { env } from './config/env';
 
-dotenv.config();
-
-const app = express();
-const PORT = process.env.PORT || 3001;
-
-// Middleware
-app.use(cors());
-app.use(express.json());
-
-// Routes
-// Note: We are already keeping in mind our api-errors.instructions.md
-app.get('/health', (req: Request, res: Response) => {
-  res.status(200).json({
-    success: true,
-    message: 'Booking Service is running properly',
-  });
+const server = app.listen(env.PORT, () => {
+    console.log(`[server]: Server is running at http://localhost:${env.PORT} in ${env.NODE_ENV} mode`);
 });
 
-// Start Server
-app.listen(PORT, () => {
-  console.log(`[booking-service] API is awake and listening on port ${PORT}`);
+// Handle Uncaught Exceptions (Synchronous programming errors)
+process.on('uncaughtException', (err) => {
+    console.error('UNCAUGHT EXCEPTION! 💥 Shutting down...');
+    console.error(err.name, err.message, err.stack);
+    process.exit(1);
+});
+
+// Graceful Shutdown for Unhandled Rejections (e.g. database disconnects prematurely)
+process.on('unhandledRejection', (err: Error) => {
+    console.error('UNHANDLED REJECTION! 💥 Shutting down gracefully...');
+    console.error(err.name, err.message, err.stack);
+    server.close(() => {
+        process.exit(1);
+    });
+});
+
+// Signal termination handling (for Docker/K8s/PM2 process stops)
+process.on('SIGTERM', () => {
+    console.info('👋 SIGTERM received. Shutting down gracefully...');
+    server.close(() => {
+        console.log('💥 Process terminated!');
+    });
 });
