@@ -4,6 +4,7 @@ import "./App.css";
 import { LandingPageWrapper } from "./pages/LandingPage";
 import { SalonDetailsPage } from "./pages/SalonDetailsPage";
 import { CheckoutPage } from "./pages/CheckoutPage";
+import SignInPage from "./pages/SignInPage";
 
 function AppRoutes() {
   const [location, setLocation] = useState("");
@@ -70,6 +71,7 @@ function AppRoutes() {
           />
         }
       />
+      <Route path="/signin" element={<SignInPage />} />
       <Route path="/salon/:id" element={<SalonDetailsPage />} />
       <Route path="/checkout" element={<CheckoutPage />} />
     </Routes>
