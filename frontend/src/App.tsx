@@ -2,6 +2,7 @@ import { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
 import { LandingPageWrapper } from "./pages/LandingPage";
+import Navbar from "./components/Navbar";
 import { SalonDetailsPage } from "./pages/SalonDetailsPage";
 import { CheckoutPage } from "./pages/CheckoutPage";
 import SignInPage from "./pages/SignInPage";
@@ -81,6 +82,7 @@ function AppRoutes() {
 function App() {
   return (
     <BrowserRouter>
+      <Navbar />
       <AppRoutes />
     </BrowserRouter>
   );

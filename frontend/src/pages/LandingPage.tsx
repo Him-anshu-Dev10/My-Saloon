@@ -38,6 +38,8 @@ export function LandingPage({
   onSelectSalon,
 }: LandingPageProps) {
   const navigate = useNavigate();
+  const isVerified = sessionStorage.getItem("isVerified") === "true";
+  const userName = sessionStorage.getItem("userName");
   return (
     <div className="min-h-screen bg-[#FDFBF9] font-sans text-stone-800">
       {/* Navbar */}
@@ -90,15 +92,23 @@ export function LandingPage({
         </div>
 
         <div className="max-w-2xl pt-16">
-          <h1 className="text-[3.5rem] leading-[1.1] font-serif mb-6 text-stone-900">
-            Find & Book Top Salons Near
-            <br />
-            You Instantly
-          </h1>
-          <p className="text-stone-500 text-lg mb-10 max-w-[420px] leading-relaxed">
-            Real-time availability. Verified salons. Instant booking. Elevate
-            your self-care routine with curated professionals.
-          </p>
+          {isVerified ? (
+            <h1 className="text-[2.5rem] leading-[1.1] font-serif mb-6 text-stone-900">
+              Welcome, {userName}! 🎉
+            </h1>
+          ) : (
+            <>
+              <h1 className="text-[3.5rem] leading-[1.1] font-serif mb-6 text-stone-900">
+                Find & Book Top Salons Near
+                <br />
+                You Instantly
+              </h1>
+              <p className="text-stone-500 text-lg mb-10 max-w-[420px] leading-relaxed">
+                Real-time availability. Verified salons. Instant booking.
+                Elevate your self-care routine with curated professionals.
+              </p>
+            </>
+          )}
 
           {/* Search/Location Form */}
           <div className="flex flex-col sm:flex-row gap-4 mb-12">
