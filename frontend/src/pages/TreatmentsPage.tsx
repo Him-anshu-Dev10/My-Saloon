@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Star, Heart } from "lucide-react";
+import { Star } from "lucide-react";
 
 type Service = {
   id: string;

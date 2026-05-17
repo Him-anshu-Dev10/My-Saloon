@@ -83,7 +83,10 @@ const SignInPage: React.FC = () => {
       const data = await res.json();
 
       if (res.ok) {
+        // Store user data in sessionStorage
         sessionStorage.setItem("isVerified", "true");
+        sessionStorage.setItem("userName", form.name);
+        sessionStorage.setItem("userEmail", form.email);
         alert(`Welcome ${form.name}, Email verified successfully`);
         navigate("/"); // Redirect after success
       } else {
@@ -98,22 +101,6 @@ const SignInPage: React.FC = () => {
 
   return (
     <div className="relative min-h-screen flex flex-col items-center justify-center font-sans text-stone-800 overflow-hidden">
-      {/* Navbar */}
-      <nav className="flex items-center justify-between px-8 py-5 mx-auto w-full max-w-7xl absolute top-0 left-0 right-0 z-10">
-        <div className="text-2xl font-semibold font-serif text-[#C49B89]">
-          Glowup
-        </div>
-
-        <div className="flex items-center space-x-6">
-          <button
-            className="bg-[#6B554D] hover:bg-[#5C4841] text-white px-6 py-2.5 rounded-md text-sm font-medium transition-colors"
-            onClick={() => navigate("/")}
-          >
-            Home
-          </button>
-        </div>
-      </nav>
-
       {/* Background */}
       <div className="absolute inset-0 -z-10 bg-[#f5e9e2]">
         <img
@@ -124,7 +111,7 @@ const SignInPage: React.FC = () => {
       </div>
 
       {/* Card */}
-      <div className="relative z-10 mt-25 bg-white/70 p-10 rounded-2xl shadow-2xl max-w-sm w-full flex flex-col items-center backdrop-blur-md">
+      <div className="relative z-10 bg-white/70 p-10 rounded-2xl shadow-2xl max-w-sm w-full flex flex-col items-center backdrop-blur-md">
         <h2 className="text-2xl font-serif mb-6 text-[#6B554D]">Sign In</h2>
 
         <form

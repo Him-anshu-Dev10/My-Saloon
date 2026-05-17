@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   MapPin,
-  Search,
   CheckCircle2,
   Star,
   Calendar,
   Heart,
   Loader2,
+  Search,
 } from "lucide-react";
 
-import { useNavigate, NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface LandingPageProps {
   location: string;
@@ -43,6 +43,7 @@ export function LandingPage({
   longitude,
 }: LandingPageProps) {
   const navigate = useNavigate();
+  // Read user data from sessionStorage
   const isVerified = sessionStorage.getItem("isVerified") === "true";
   const userName = sessionStorage.getItem("userName");
   const [salons, setSalons] = useState<any[]>([]);
@@ -61,7 +62,9 @@ export function LandingPage({
 
         const res = await fetch(url);
         const body = await res.json();
-        if (body && body.success) setSalons(body.data || []);
+        if (body && body.success) {
+          setSalons(body.data || []);
+        }
       } catch (err) {
         console.error("Failed to fetch salons:", err);
       }
@@ -69,63 +72,9 @@ export function LandingPage({
 
     fetchSalons();
   }, [location, latitude, longitude]);
+
   return (
     <div className="min-h-screen bg-[#FDFBF9] font-sans text-stone-800">
-      {/* Navbar */}
-      <nav className="flex items-center justify-between px-8 py-5 mx-auto max-w-7xl">
-        <div className="text-2xl font-semibold font-serif text-[#C49B89]">
-          Glowup
-        </div>
-
-        <div className="hidden md:flex items-center space-x-8 text-sm tracking-wide font-medium text-stone-600">
-          <NavLink
-            to="/treatments"
-            className={({ isActive }) =>
-              isActive
-                ? "text-stone-900 border-b-2 border-stone-900 pb-1"
-                : "hover:text-stone-900 transition-colors"
-            }
-          >
-            DISCOVER
-          </NavLink>
-          <NavLink
-            to="/treatments"
-            className={({ isActive }) =>
-              isActive ? "text-stone-900 border-b-2 border-stone-900 pb-1" : "hover:text-stone-900 transition-colors"
-            }
-          >
-            TREATMENTS
-          </NavLink>
-          <NavLink
-            to="/memberships"
-            className={({ isActive }) =>
-              isActive ? "text-stone-900 border-b-2 border-stone-900 pb-1" : "hover:text-stone-900 transition-colors"
-            }
-          >
-            MEMBERSHIPS
-          </NavLink>
-          <NavLink
-            to="/concierge"
-            className={({ isActive }) =>
-              isActive ? "text-stone-900 border-b-2 border-stone-900 pb-1" : "hover:text-stone-900 transition-colors"
-            }
-          >
-            CONCIERGE
-          </NavLink>
-        </div>
-
-        <div className="flex items-center space-x-6">
-          <button className="text-stone-600 hover:text-stone-900 transition-colors">
-            <Search size={20} />
-          </button>
-          <button
-            className="bg-[#6B554D] hover:bg-[#5C4841] text-white px-6 py-2.5 rounded-md text-sm font-medium transition-colors"
-            onClick={() => navigate("/signin")}
-          >
-            Sign In
-          </button>
-        </div>
-      </nav>
 
       {/* Hero Section */}
       <main className="relative max-w-7xl mx-auto px-8 pt-20 pb-32 flex h-[700px]">
@@ -140,11 +89,34 @@ export function LandingPage({
         </div>
 
         <div className="max-w-2xl pt-16">
+          {/* Conditional rendering: logged in vs logged out */}
           {isVerified ? (
-            <h1 className="text-[2.5rem] leading-[1.1] font-serif mb-6 text-stone-900">
-              Welcome, {userName}! 🎉
-            </h1>
+            // LOGGED IN: Show personalized welcome
+            <>
+              <div className="inline-flex items-center gap-2 bg-[#F4E9E5] text-[#6B554D] text-sm font-medium px-4 py-1.5 rounded-full mb-5">
+                <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                You're all set
+              </div>
+              <h1 className="text-[3.2rem] leading-[1.1] font-serif mb-4 text-stone-900">
+                Welcome, {userName}! 🎉
+              </h1>
+              <p className="text-stone-500 text-lg mb-10 max-w-[420px] leading-relaxed">
+                Great to see you again! Explore top-rated salons near you and
+                book your next pampering session instantly.
+              </p>
+              <button
+                onClick={() => {
+                  const section = document.querySelector("section");
+                  section?.scrollIntoView({ behavior: "smooth" });
+                }}
+                className="flex items-center mb-4 gap-2 bg-[#6B554D] hover:bg-[#5C4841] text-white px-8 py-4 rounded-xl font-medium transition-all hover:shadow-xl hover:shadow-[#6B554D]/20 text-base"
+              >
+                <Calendar size={18} />
+                Book Your Next Session
+              </button>
+            </>
           ) : (
+            // NOT LOGGED IN: Show default hero
             <>
               <h1 className="text-[3.5rem] leading-[1.1] font-serif mb-6 text-stone-900">
                 Find & Book Top Salons Near

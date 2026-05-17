@@ -16,10 +16,10 @@ const app: Express = express();
 // Security
 app.use(helmet());
 
-// CORS
+// CORS - accept any localhost port in development
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:5174"],
+    origin: "http://localhost:5173",
 
     credentials: true,
 

@@ -9,6 +9,8 @@ import Navbar from "./components/Navbar";
 import { SalonDetailsPage } from "./pages/SalonDetailsPage";
 import { CheckoutPage } from "./pages/CheckoutPage";
 import SignInPage from "./pages/SignInPage";
+import { BookingConfirmationPage } from "./pages/BookingConfirmationPage";
+import { MyBookingsPage } from "./pages/MyBookingsPage";
 
 function AppRoutes() {
   const [location, setLocation] = useState("");
@@ -97,15 +99,16 @@ function AppRoutes() {
         <Route path="/treatments" element={<TreatmentsPage latitude={latitude} longitude={longitude} />} />
       <Route path="/salon/:id" element={<SalonDetailsPage />} />
       <Route path="/checkout" element={<CheckoutPage />} />
+      <Route path="/booking-confirmation/:id" element={<BookingConfirmationPage />} />
+      <Route path="/my-bookings" element={<MyBookingsPage />} />
     </Routes>
   );
 }
 
 function InnerApp() {
-  const location = useLocation();
   return (
     <>
-      {location.pathname !== "/" && <Navbar />}
+      <Navbar />
       <AppRoutes />
     </>
   );
