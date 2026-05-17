@@ -38,7 +38,9 @@ export function CheckoutPage() {
     total_price: 0,
   });
 
-  // Pre-fill user data
+  const [salonServices, setSalonServices] = useState<any[]>(HAIRSTYLES);
+
+  // Pre-fill user data and selections from sessionStorage
   useEffect(() => {
     const isVerified = sessionStorage.getItem("isVerified") === "true";
     if (isVerified) {
@@ -47,6 +49,45 @@ export function CheckoutPage() {
         customer_name: sessionStorage.getItem("userName") || "",
         customer_email: sessionStorage.getItem("userEmail") || "",
       }));
+    }
+
+    // Load available salon services from details page if present
+    const savedServicesList = sessionStorage.getItem("selectedSalonServices");
+    if (savedServicesList) {
+      try {
+        const list = JSON.parse(savedServicesList);
+        if (list && list.length > 0) {
+          const formatted = list.map((item: any) => ({
+            id: item.id,
+            name: item.name,
+            price: Number(item.price),
+            duration: item.duration || '60 mins',
+            image: item.image || 'https://images.unsplash.com/photo-1595476108010-b4d1f10d5e43?q=80&w=200&auto=format&fit=crop'
+          }));
+          setSalonServices(formatted);
+        }
+      } catch (e) {
+        console.error("Failed to parse selectedSalonServices", e);
+      }
+    }
+
+    // Preselect the first selected service from details page if present
+    const savedSelected = sessionStorage.getItem("selectedServices");
+    if (savedSelected) {
+      try {
+        const list = JSON.parse(savedSelected);
+        if (list && list.length > 0) {
+          const first = list[0];
+          setBookingData((prev) => ({
+            ...prev,
+            hairstyle: first.id,
+            serviceName: first.name,
+            total_price: Number(first.price)
+          }));
+        }
+      } catch (e) {
+        console.error(e);
+      }
     }
   }, []);
 
@@ -191,7 +232,7 @@ export function CheckoutPage() {
                   <div>
                     <h3 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-4">1. Choose Service</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      {HAIRSTYLES.map((hs) => (
+                      {salonServices.map((hs) => (
                         <div 
                           key={hs.id}
                           onClick={() => handleSelectHairstyle(hs)}

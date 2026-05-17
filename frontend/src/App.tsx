@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { useState } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import "./App.css";
 import { LandingPageWrapper } from "./pages/LandingPage";
 import TreatmentsPage from "./pages/TreatmentsPage";
@@ -68,15 +68,6 @@ function AppRoutes() {
     );
   };
 
-  // Auto-attempt to get location on first mount so we can show nearby salons
-  // without requiring the user to click "Use My Location".
-  // This will prompt the browser for location permission.
-  React.useEffect(() => {
-    if (!location && navigator.geolocation) {
-      handleUseMyLocation();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <Routes>

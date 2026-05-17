@@ -36,10 +36,10 @@ const Navbar: React.FC = () => {
   const isHome = location.pathname === "/";
 
   const navLinks = [
-    { label: "DISCOVER", href: "#" },
-    { label: "TREATMENTS", href: "#" },
-    { label: "MEMBERSHIPS", href: "#" },
-    { label: "CONCIERGE", href: "#" },
+    { label: "DISCOVER", path: "/" },
+    { label: "TREATMENTS", path: "/treatments" },
+    { label: "MEMBERSHIPS", path: "/memberships" },
+    { label: "CONCIERGE", path: "/concierge" },
   ];
 
   return (
@@ -59,24 +59,25 @@ const Navbar: React.FC = () => {
           Glowup
         </button>
 
-        {/* Desktop Nav Links - only show on home page */}
-        {isHome && (
-          <div className="hidden md:flex items-center space-x-8 text-sm tracking-wide font-medium text-stone-500">
-            {navLinks.map((link, i) => (
-              <a
+        {/* Desktop Nav Links */}
+        <div className="hidden md:flex items-center space-x-8 text-sm tracking-wide font-medium text-stone-500">
+          {navLinks.map((link, i) => {
+            const isActive = location.pathname === link.path;
+            return (
+              <button
                 key={i}
-                href={link.href}
-                className={`relative py-1 transition-colors hover:text-stone-900 ${
-                  i === 0
-                    ? "text-stone-900 after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-stone-900"
+                onClick={() => navigate(link.path)}
+                className={`relative py-1 transition-colors hover:text-stone-900 cursor-pointer ${
+                  isActive
+                    ? "text-stone-900 after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-stone-900 font-semibold"
                     : ""
                 }`}
               >
                 {link.label}
-              </a>
-            ))}
-          </div>
-        )}
+              </button>
+            );
+          })}
+        </div>
 
         {/* Right Side */}
         <div className="flex items-center space-x-4">
@@ -148,16 +149,18 @@ const Navbar: React.FC = () => {
       {mobileMenuOpen && (
         <div className="md:hidden bg-white/95 backdrop-blur-xl border-t border-stone-100 shadow-lg">
           <div className="px-8 py-4 flex flex-col gap-3">
-            {isHome &&
-              navLinks.map((link, i) => (
-                <a
-                  key={i}
-                  href={link.href}
-                  className="text-sm font-medium text-stone-600 hover:text-stone-900 py-2 transition-colors"
-                >
-                  {link.label}
-                </a>
-              ))}
+            {navLinks.map((link, i) => (
+              <button
+                key={i}
+                onClick={() => {
+                  navigate(link.path);
+                  setMobileMenuOpen(false);
+                }}
+                className="text-sm font-medium text-stone-600 hover:text-stone-900 py-2 transition-colors text-left cursor-pointer"
+              >
+                {link.label}
+              </button>
+            ))}
 
             {!isVerified ? (
               <button

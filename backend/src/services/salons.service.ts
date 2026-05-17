@@ -11,28 +11,86 @@ export class SalonsService {
     lat?: number,
     lon?: number,
     radiusKm: number = 10,
+    name?: string,
+    rating?: number,
+    service?: string,
+    maxPrice?: number
   ) {
     try {
-      // If latitude and longitude are provided, compute distance using Haversine
+      const queryParams: any[] = [];
+      let paramIndex = 1;
+      
+      let selectFields = 's.*';
+      const fromClause = 'salons s';
+      const whereClauses: string[] = [];
+      let orderBy = 's.rating DESC';
+
+      // 1. Distance / Haversine formula
       if (typeof lat === 'number' && typeof lon === 'number') {
         const haversine = `(
           6371 * acos(
-            cos(radians($1)) * cos(radians(latitude)) * cos(radians(longitude) - radians($2))
-            + sin(radians($1)) * sin(radians(latitude))
+            cos(radians($${paramIndex})) * cos(radians(s.latitude)) * cos(radians(s.longitude) - radians($${paramIndex + 1}))
+            + sin(radians($${paramIndex})) * sin(radians(s.latitude))
           )
         )`;
+        queryParams.push(lat, lon);
+        paramIndex += 2;
 
-        const sql = `SELECT *, ${haversine} AS distance_km FROM salons WHERE ${haversine} <= $3 ORDER BY distance_km ASC LIMIT $4`;
-        const res = await query(sql, [lat, lon, radiusKm, limit]);
-        return res.rows;
+        selectFields += `, ${haversine} AS distance_km`;
+        
+        // Filter by distance/radius
+        whereClauses.push(`${haversine} <= $${paramIndex}`);
+        queryParams.push(radiusKm);
+        paramIndex += 1;
+        
+        orderBy = 'distance_km ASC';
       }
 
+      // 2. Filter by city
       if (city) {
-        const res = await query('SELECT * FROM salons WHERE city ILIKE $1 LIMIT $2', [`%${city}%`, limit]);
-        return res.rows;
+        whereClauses.push(`s.city ILIKE $${paramIndex}`);
+        queryParams.push(`%${city}%`);
+        paramIndex += 1;
       }
 
-      const res = await query('SELECT * FROM salons LIMIT $1', [limit]);
+      // 3. Filter by name
+      if (name) {
+        whereClauses.push(`s.name ILIKE $${paramIndex}`);
+        queryParams.push(`%${name}%`);
+        paramIndex += 1;
+      }
+
+      // 4. Filter by minimum rating
+      if (rating) {
+        whereClauses.push(`s.rating >= $${paramIndex}`);
+        queryParams.push(rating);
+        paramIndex += 1;
+      }
+
+      // 5. Filter by price
+      if (maxPrice) {
+        whereClauses.push(`s.starting_price <= $${paramIndex}`);
+        queryParams.push(maxPrice);
+        paramIndex += 1;
+      }
+
+      // 6. Filter by service
+      if (service) {
+        whereClauses.push(`s.id IN (SELECT salon_id FROM services WHERE name ILIKE $${paramIndex})`);
+        queryParams.push(`%${service}%`);
+        paramIndex += 1;
+      }
+
+      // Combine SQL
+      let sql = `SELECT ${selectFields} FROM ${fromClause}`;
+      if (whereClauses.length > 0) {
+        sql += ` WHERE ${whereClauses.join(' AND ')}`;
+      }
+      
+      sql += ` ORDER BY ${orderBy} LIMIT $${paramIndex}`;
+      queryParams.push(limit);
+
+      const res = await query(sql, queryParams);
       return res.rows;
     } catch (err: any) {
       throw ApiError.internal(`Failed to fetch salons: ${err.message}`, 'DB_FETCH_ERROR');
