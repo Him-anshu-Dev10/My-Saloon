@@ -1,0 +1,75 @@
+.login-root {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  color: var(--muted);
+}
+.login-card {
+  background: var(--panel-bg);
+  padding: 28px;
+  border-radius: 12px;
+  width: 420px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+.brand {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.lead { margin-top: 6px; color: var(--muted); }
+.login-form { display:flex; flex-direction:column; gap:12px; margin-top:16px }
+.login-form label { display:flex; flex-direction:column; font-size:13px; color:var(--muted) }
+.login-form input { margin-top:8px; padding:12px 14px; border-radius:10px; border:1px solid var(--input-border); background:var(--input-bg); font-size:14px }
+.login-form input::placeholder { color:#bfb7b2 }
+.btn-primary { margin-top:8px; padding:10px 12px; background:var(--accent); color:white; border-radius:8px; border:none; font-weight:600 }
+.hint { margin-top:12px; font-size:13px; color:#8b7c75 }
+.error { color:#b00020; font-size:13px }
+
+.app-root { display:flex; min-height:100vh }
+.sidebar { width:240px; background:var(--panel-bg); border-right:1px solid var(--border); padding:20px; box-sizing:border-box }
+.sidebar .brand { font-weight:700; color:var(--accent); margin-bottom:18px }
+.sidebar ul { list-style:none; padding:0; margin:0 }
+.sidebar li { padding:12px 10px; border-radius:8px; color:var(--muted); display:flex; align-items:center; gap:10px }
+.sidebar li.active { background:#fbf6f4; color:var(--accent); font-weight:600 }
+.new-booking { margin-top:18px; background:var(--accent); color:white; border:none; padding:10px; border-radius:8px }
+
+.nav-dot { width:8px; height:8px; border-radius:50%; background:#e9e2df; display:inline-block }
+.sidebar li.active .nav-dot { background:var(--accent) }
+
+/* icons */
+.nav-icon, .btn-icon, .search-icon { width:18px; height:18px; color: #9b8f8a; display:inline-block; margin-right:10px }
+.nav-icon { flex-shrink:0 }
+.btn-icon { width:16px; height:16px; margin-right:8px }
+
+/* interactive states */
+input:focus, .login-form input:focus, .search input:focus { outline: none; box-shadow: 0 0 0 4px rgba(107,75,58,0.08); border-color: rgba(107,75,58,0.9) }
+.btn-primary:hover, .btn-primary:focus { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(107,75,58,0.12) }
+.btn-ghost:hover { background:#fff7f4; border-color: rgba(107,75,58,0.08) }
+.new-booking { display:flex; align-items:center; justify-content:center; gap:8px; transition: transform 0.15s, box-shadow 0.15s }
+.new-booking:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(16,24,40,0.06) }
+
+.sidebar li { transition: background 0.15s, color 0.15s, transform 0.12s }
+.sidebar li:hover { transform: translateX(4px); background:#fcf7f6 }
+
+.btn-ghost:focus-visible, .btn-primary:focus-visible { outline: 3px solid rgba(107,75,58,0.12); outline-offset: 2px }
+
+.main { flex:1; display:flex; flex-direction:column }
+.topbar { display:flex; justify-content:space-between; align-items:center; padding:18px 24px; border-bottom:1px solid var(--border) }
+.search { color:#9b8f8a; background:var(--input-bg); padding:10px 14px; border-radius:10px; border:1px solid var(--input-border); width:480px }
+.profile { display:flex; gap:12px; align-items:center }
+.btn-ghost { background:transparent; border:1px solid var(--input-border); padding:6px 10px; border-radius:8px }
+.content { padding:24px }
+
+.container { max-width:1100px }
+.metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:18px }
+.card { background:var(--panel-bg); padding:18px; border-radius:12px; box-shadow:0 2px 8px rgba(16,24,40,0.03); border:1px solid var(--border) }
+.panel { background:var(--panel-bg); padding:18px; border-radius:12px; border:1px solid var(--border) }
+.appointments { list-style:none; padding:0; margin:0 }
+.appointments li { display:flex; gap:12px; align-items:center; padding:12px 0; border-bottom:1px solid #f7f3f2 }
+.appointments .time { width:64px; color:var(--muted); font-weight:600 }
+.status { padding:6px 10px; border-radius:999px; font-size:12px }
+.in-progress { background:#fff3e6; color:#a65a0a }
+.pending { background:#fff6f6; color:#a02a2a }

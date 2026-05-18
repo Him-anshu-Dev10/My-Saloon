@@ -264,3 +264,27 @@ graph TD
 | **Server Crash during Booking** | Distributed Transactions utilize the Saga Pattern. If the pod dies mid-booking, the Redis lock TTL (10m) automatically expires, returning the slot to the system. |
 | **Notification Provider Outage** | Kafka implements a Dead Letter Queue (DLQ). If Twilio/FCM is down, events are shifted to DLQ with exponential backoff and retries. |
 | **Primary Database Downtime** | RDS Multi-AZ Deployment with automated failover. The Standby acts as Primary within 60-120 seconds. Redis cache serves read-heavy endpoints (like Search) to degrade gracefully. |
+
+---
+
+## Admin Panel: `admin-saloon` (frontend)
+
+This repository contains a lightweight React admin panel used by salon operators and platform administrators. Key architectural decisions:
+
+- **Folder structure:**
+    - `src/pages/`: Page-level components (e.g., `LoginPage`, `Dashboard`).
+    - `src/components/`: Reusable UI pieces (`Sidebar`, `Layout`, forms).
+    - `src/services/`: Client-side services (auth, api clients, feature flags).
+    - `public/` and `assets/`: Static images and icons.
+
+- **Auth:** Client-side demo auth (localStorage) for development. Replace with real JWT flow and secure cookie storage for production.
+
+- **State & Routing:** Minimal local state used for this prototype. For a production-grade app, adopt `react-router` for routing and `zustand`/`redux` or React Context + hooks for global state.
+
+- **Styling:** Small, component-scoped CSS files for fast iteration. Migrate to a design system (Tailwind/Theme UI or CSS variables + tokens) for consistency.
+
+- **Integration points:** The Admin UI talks to the Admin microservice through REST endpoints behind the API Gateway. Keep service contracts stable and versioned.
+
+---
+
+This addition documents the recommended structure for `admin-saloon` and the immediate choices made for rapid prototyping.
