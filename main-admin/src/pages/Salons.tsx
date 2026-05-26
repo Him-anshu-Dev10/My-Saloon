@@ -3,13 +3,23 @@ import Layout from '../components/Layout';
 
 export default function Salons() {
   const [showModal, setShowModal] = useState(false);
+  const [showAdminModal, setShowAdminModal] = useState(false);
   const [salons, setSalons] = useState<any[]>([]);
+  
+  // Salon state
   const [name, setName] = useState('');
   const [city, setCity] = useState('');
+  
+  // Admin state
+  const [adminEmail, setAdminEmail] = useState('');
+  const [adminPassword, setAdminPassword] = useState('');
+  const [adminSalonId, setAdminSalonId] = useState('');
+
+  const VITE_BACKEND_URL = 'http://localhost:3000/api/v1';
 
   const fetchSalons = async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/v1/salons');
+      const res = await fetch(`${VITE_BACKEND_URL}/salons`);
       const json = await res.json();
       if (json.success) {
         setSalons(json.data);
@@ -25,25 +35,50 @@ export default function Salons() {
 
   const handleCreate = async () => {
     try {
-      const res = await fetch('http://localhost:3001/api/v1/salons', {
+      const res = await fetch("/salons", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('superadmin_token')}`
         },
-        body: JSON.stringify({ name, city })
+        body: JSON.stringify({ name, city, latitude: 0, longitude: 0, starting_price: 50 })
       });
       if (res.ok) {
         setShowModal(false);
         setName('');
         setCity('');
-        fetchSalons(); // refresh list
+        fetchSalons();
       } else {
         alert('Failed to create salon');
       }
     } catch (e) {
       console.error(e);
     }
+  };
+
+  const handleCreateAdmin = async () => {
+    try {
+        const res = await fetch(`${VITE_BACKEND_URL}/auth/create-salon-admin`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('superadmin_token')}`
+          },
+          body: JSON.stringify({ email: adminEmail, password: adminPassword, salon_id: adminSalonId })
+        });
+        const json = await res.json();
+        if (res.ok) {
+          alert('Admin created successfully!');
+          setShowAdminModal(false);
+          setAdminEmail('');
+          setAdminPassword('');
+          setAdminSalonId('');
+        } else {
+          alert('Failed to create admin: ' + (json.message || 'Error'));
+        }
+      } catch (e) {
+          console.error(e);
+      }
   };
 
   return (
@@ -75,6 +110,14 @@ export default function Salons() {
                 <td style={{ padding: '15px 20px' }}>{s.city}</td>
                 <td style={{ padding: '15px 20px' }}>{s.rating || 'New'}</td>
                 <td style={{ padding: '15px 20px' }}>
+                  <button 
+                    onClick={() => {
+                        setAdminSalonId(s.id);
+                        setShowAdminModal(true);
+                    }}
+                    style={{ background: '#CA9A86', border: 'none', padding: '5px 10px', borderRadius: '6px', cursor: 'pointer', color: '#fff', marginRight: '10px' }}>
+                    + Create Admin
+                  </button>
                   <button style={{ background: 'transparent', border: '1px solid #ccc', padding: '5px 10px', borderRadius: '6px', cursor: 'pointer', color: '#111' }}>Edit</button>
                 </td>
               </tr>
@@ -98,20 +141,51 @@ export default function Salons() {
                 value={city} onChange={e => setCity(e.target.value)}
                 style={{ background: '#fff', padding: '10px', border: '1px solid #ccc', borderRadius: '6px', width: '100%', boxSizing: 'border-box', color: '#111' }} 
               />
+              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                <button 
+                  onClick={handleCreate}
+                  style={{ flex: 1, background: '#000', color: '#fff', padding: '10px', borderRadius: '6px', border: 'none', cursor: 'pointer' }}>
+                  Save Salon
+                </button>
+                <button 
+                  onClick={() => setShowModal(false)}
+                  style={{ flex: 1, background: '#fff', color: '#111', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', cursor: 'pointer' }}>
+                  Cancel
+                </button>
+              </div>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '30px' }}>
-              <button 
-                onClick={() => setShowModal(false)}
-                style={{ background: 'transparent', color: '#111', padding: '10px 20px', borderRadius: '8px', border: '1px solid #ccc', cursor: 'pointer' }}
-              >
-                Cancel
-              </button>
-              <button 
-                onClick={handleCreate}
-                style={{ background: '#000', color: '#fff', padding: '10px 20px', borderRadius: '8px', border: 'none', cursor: 'pointer' }}
-              >
-                Save
-              </button>
+          </div>
+        </div>
+      )}
+
+      {showAdminModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ background: '#fff', padding: '30px', borderRadius: '12px', width: '400px' }}>
+            <h2 style={{ marginTop: 0, color: '#111' }}>Create Salon Admin</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '20px' }}>
+              <input 
+                placeholder="Admin Email" 
+                value={adminEmail} onChange={e => setAdminEmail(e.target.value)}
+                style={{ background: '#fff', padding: '10px', border: '1px solid #ccc', borderRadius: '6px', width: '100%', boxSizing: 'border-box', color: '#111' }} 
+              />
+              <input 
+                placeholder="Password" 
+                type="password"
+                value={adminPassword} onChange={e => setAdminPassword(e.target.value)}
+                style={{ background: '#fff', padding: '10px', border: '1px solid #ccc', borderRadius: '6px', width: '100%', boxSizing: 'border-box', color: '#111' }} 
+              />
+              <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                <button 
+                  onClick={handleCreateAdmin}
+                  style={{ flex: 1, background: '#000', color: '#fff', padding: '10px', borderRadius: '6px', border: 'none', cursor: 'pointer' }}>
+                  Create Account
+                </button>
+                <button 
+                  onClick={() => setShowAdminModal(false)}
+                  style={{ flex: 1, background: '#fff', color: '#111', padding: '10px', borderRadius: '6px', border: '1px solid #ccc', cursor: 'pointer' }}>
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -119,3 +193,4 @@ export default function Salons() {
     </Layout>
   );
 }
+

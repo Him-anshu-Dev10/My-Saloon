@@ -9,29 +9,58 @@ type Props = {
 
 export default function Dashboard({ user, onLogout }: Props) {
   const [bookings, setBookings] = useState<any[]>([]);
+  const [allocationStylist, setAllocationStylist] = useState<Record<string, string>>({});
+
+  const fetchBookings = async () => {
+    try {
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      const res = await fetch('http://localhost:3000/api/v1/bookings/admin', {
+        headers: {
+          'Authorization': 'Bearer ' + token
+        }
+      });
+      const data = await res.json();
+      if (data.success) {
+        setBookings(data.data || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch bookings", err);
+    }
+  };
 
   useEffect(() => {
-    const fetchBookings = async () => {
-      try {
-        let url = 'http://localhost:3000/api/v1/bookings/all';
-        if (user?.salon_id) {
-          url += `?salon_id=${user.salon_id}`;
-        }
-        const res = await fetch(url);
-        const data = await res.json();
-        if (data.success) {
-          setBookings(data.data || []);
-        }
-      } catch (err) {
-        console.error("Failed to fetch bookings", err);
-      }
-    };
     fetchBookings();
   }, [user]);
 
+  const handleAllocate = async (bookingId: string) => {
+    const stylist = allocationStylist[bookingId];
+    if (!stylist) return alert("Please enter a barber's name.");
+
+    try {
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      const res = await fetch("http://localhost:3000/api/v1/bookings/admin/" + bookingId + "/allocate", {
+        method: "PATCH",
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ stylist })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("Barber allocated successfully!");
+        fetchBookings();
+      } else {
+        alert(data.message || "Failed to allocate.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error allocating barber.");
+    }
+  };
+
   const totalRevenue = bookings.reduce((sum, b) => sum + Number(b.total_price || 0), 0);
   
-  // Format current date
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     month: 'long',
@@ -56,7 +85,7 @@ export default function Dashboard({ user, onLogout }: Props) {
         <div className="metrics-grid">
           <div className="metric-card">
             <div className="label">Total Revenue</div>
-            <div className="value">${totalRevenue.toFixed(2)}</div>
+            <div className="value"></div>
           </div>
           <div className="metric-card">
             <div className="label">Total Appointments</div>
@@ -80,10 +109,36 @@ export default function Dashboard({ user, onLogout }: Props) {
                   <div className="time">{b.booking_time}</div>
                   <div className="info">
                     <div className="client">{b.customer_name} ({b.customer_email})</div>
-                    <div className="meta">{b.hairstyle} • with {b.stylist} • Date: {new Date(b.booking_date).toLocaleDateString()}</div>
+                    <div className="meta">{b.hairstyle} &bull; Date: {new Date(b.booking_date).toLocaleDateString()}</div>
+                    <div style={{ marginTop: '8px', display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <strong style={{ fontSize: '13px' }}>Stylist:</strong>
+                      {b.stylist ? (
+                        <span style={{ fontSize: '13px', background: '#e0e0e0', padding: '2px 8px', borderRadius: '4px' }}>{b.stylist}</span>
+                      ) : (
+                        <span style={{ fontSize: '13px', background: '#ffe0b2', padding: '2px 8px', borderRadius: '4px', color: '#d84315' }}>Unassigned</span>
+                      )}
+                    </div>
                   </div>
-                  <div className={`status ${b.booking_status === 'confirmed' ? 'confirmed' : 'pending'}`}>
-                    {b.booking_status}
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end' }}>
+                    <div className={"status " + (b.booking_status === 'confirmed' ? 'confirmed' : 'pending')}>
+                      {b.booking_status}
+                    </div>
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      <input 
+                        type="text" 
+                        placeholder="Barber name" 
+                        value={allocationStylist[b.id] || ''}
+                        onChange={(e) => setAllocationStylist({...allocationStylist, [b.id]: e.target.value})}
+                        style={{ padding: '4px 8px', border: '1px solid #ccc', borderRadius: '4px', fontSize: '12px', width: '100px' }}
+                      />
+                      <button 
+                        onClick={() => handleAllocate(b.id)}
+                        style={{ padding: '4px 8px', background: '#000', color: '#fff', border: 'none', borderRadius: '4px', fontSize: '12px', cursor: 'pointer' }}
+                      >
+                        Allocate
+                      </button>
+                    </div>
                   </div>
                 </li>
               ))}

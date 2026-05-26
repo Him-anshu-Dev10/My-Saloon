@@ -1,4 +1,4 @@
-import { query } from '../config/db';
+﻿import { query } from '../config/db';
 import { ApiError } from '../exceptions/ApiError';
 
 export class SalonsService {
@@ -29,12 +29,12 @@ export class SalonsService {
       if (typeof lat === 'number' && typeof lon === 'number') {
         const haversine = `(
           6371 * acos(
-            cos(radians($${paramIndex})) * cos(radians(s.latitude)) * cos(radians(s.longitude) - radians($${paramIndex + 1}))
-            + sin(radians($${paramIndex})) * sin(radians(s.latitude))
+            cos(radians($1)) * cos(radians(s.latitude)) * cos(radians(s.longitude) - radians($2))
+            + sin(radians($1)) * sin(radians(s.latitude))
           )
         )`;
-        queryParams.push(lat, lon);
-        paramIndex += 2;
+        queryParams.push(lat, lon, lat);
+        paramIndex += 3;
 
         selectFields += `, ${haversine} AS distance_km`;
         
@@ -146,5 +146,10 @@ export class SalonsService {
     } catch (err: any) {
       throw ApiError.internal(`Failed to create salon: ${err.message}`, 'DB_CREATE_ERROR');
     }
+  }
+
+  public async getSalonById(id: string) {
+    const result = await query('SELECT * FROM salons WHERE id = $1', [id]);
+    return result.rows[0] || null;
   }
 }

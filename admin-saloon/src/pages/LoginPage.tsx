@@ -8,7 +8,9 @@ export default function LoginPage() {
   const navigate = useNavigate()
 
   function handleLogin(email: string) {
-    auth.setCurrent(email)
+    if (typeof auth === 'object' && 'setCurrent' in auth) {
+      (auth as any).setCurrent(email)
+    }
     navigate('/')
   }
 

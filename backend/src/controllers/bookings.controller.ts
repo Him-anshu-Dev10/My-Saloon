@@ -243,4 +243,54 @@ export const getAllBookings = asyncHandler(
       data: result.rows,
     });
   }
-);
+);export const getSalonBookings = asyncHandler(async (req: Request, res: Response) => {
+  const { salon_id } = (req as any).user;
+  
+  if (!salon_id) {
+    res.status(403).json({ message: "Salon ID missing from authenticated user." });
+    return;
+  }
+
+  const result = await query(
+    'SELECT * FROM public.bookings WHERE salon_id =  ORDER BY booking_date DESC, booking_time ASC',
+    [salon_id]
+  );
+
+  res.json({
+    success: true,
+    data: result.rows
+  });
+});
+
+export const allocateBarber = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { stylist } = req.body;
+  const { salon_id } = (req as any).user;
+
+  if (!stylist) {
+    res.status(400).json({ message: "Stylist name is required" });
+    return;
+  }
+
+  // Ensure this booking belongs to the admin's salon
+  const checkResult = await query('SELECT salon_id FROM public.bookings WHERE id = ', [id]);
+  if (checkResult.rows.length === 0) {
+    res.status(404).json({ message: "Booking not found" });
+    return;
+  }
+  if (checkResult.rows[0].salon_id !== salon_id) {
+    res.status(403).json({ message: "Forbidden: Booking belongs to another salon" });
+    return;
+  }
+
+  const result = await query(
+    'UPDATE public.bookings SET stylist =  WHERE id =  RETURNING *',
+    [stylist, id]
+  );
+
+  res.json({
+    success: true,
+    message: "Barber allocated successfully",
+    data: result.rows[0]
+  });
+});

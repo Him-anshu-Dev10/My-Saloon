@@ -46,6 +46,19 @@ export class SalonsController {
    * @route   GET /api/v1/salons/:id
    * @desc    Get single salon details
    */
+  public getSalonById = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const salon = await this.salonsService.getSalonById(id);
+    if (!salon) {
+      res.status(404);
+      throw new Error('Salon not found');
+    }
+    res.status(200).json({
+      success: true,
+      data: salon
+    });
+  });
+
   /**
    * @route   POST /api/v1/salons
    * @desc    Create a new salon

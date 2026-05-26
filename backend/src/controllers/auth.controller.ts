@@ -162,3 +162,30 @@ export const superAdminLogin = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+export const createSalonAdmin = async (req: Request, res: Response) => {
+  const { email, password, salon_id } = req.body;
+
+  if (!email || !password || !salon_id) {
+    return res.status(400).json({ message: "Email, password, and salon_id are required" });
+  }
+
+  try {
+    const checkResult = await query('SELECT * FROM users WHERE email = $1', [email]);
+    if (checkResult.rows.length > 0) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const result = await query(
+      'INSERT INTO users (email, password, role, salon_id) VALUES ($1, $2, $3, $4) RETURNING id, email, role, salon_id',
+      [email, hashedPassword, 'admin', salon_id]
+    );
+
+    res.status(201).json({ message: "Salon admin created successfully", user: result.rows[0] });
+  } catch (err: any) {
+    console.error("Create Salon Admin error:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
