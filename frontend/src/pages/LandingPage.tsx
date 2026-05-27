@@ -121,7 +121,13 @@ export function LandingPage({
         const res = await fetch(`${base}/salons?${params.toString()}`);
         const body = await res.json();
         if (body && body.success) {
-          setSalons(body.data || []);
+          const fetchedSalons = body.data || [];
+          setSalons(fetchedSalons);
+          
+          if (fetchedSalons.length > 0 && !latitude && !longitude) {
+            // Update map center to the first salon's location if user location is not strictly tracking
+            setMapCenter([Number(fetchedSalons[0].latitude), Number(fetchedSalons[0].longitude)]);
+          }
         }
       } catch (err) {
         console.error("Failed to fetch salons:", err);
