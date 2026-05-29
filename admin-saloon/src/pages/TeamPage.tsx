@@ -1,22 +1,32 @@
-import { useEffect, useState } from 'react'
-import Layout from '../components/Layout'
-import { api } from '../services/api'
-import './pages.css'
+import { useEffect, useState } from "react";
+import Layout from "../components/Layout";
+import { api } from "../services/api";
+import "./pages.css";
 
 type Props = {
-  user: any
-  onLogout: () => void
-}
+  user: any;
+  onLogout: () => void;
+};
 
 type TeamMember = {
-  id: string
-  email: string
-  role: string
-}
+  id: string;
+  name: string;
+  role: string;
+  experience?: string;
+  image_url?: string;
+};
 
 export default function TeamPage({ user, onLogout }: Props) {
   const [team, setTeam] = useState<TeamMember[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
+  const [form, setForm] = useState({
+    name: "",
+    role: "",
+    experience: "",
+    image_url: "",
+  });
 
   const fetchTeam = async () => {
     try {
@@ -34,18 +44,71 @@ export default function TeamPage({ user, onLogout }: Props) {
     fetchTeam();
   }, []);
 
+  const openCreate = () => {
+    setEditingMember(null);
+    setForm({ name: "", role: "", experience: "", image_url: "" });
+    setShowModal(true);
+  };
+
+  const openEdit = (t: TeamMember) => {
+    setEditingMember(t);
+    setForm({
+      name: t.name,
+      role: t.role,
+      experience: t.experience || "",
+      image_url: t.image_url || "",
+    });
+    setShowModal(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.name || !form.role) return alert("Name and role are required.");
+
+    try {
+      const payload = { ...form };
+      if (editingMember) {
+        await api.updateTeamMember(editingMember.id, payload);
+      } else {
+        await api.createTeamMember(payload);
+      }
+      setShowModal(false);
+      fetchTeam();
+    } catch (err: any) {
+      alert(err.message || "Failed to save team member.");
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this team member?"))
+      return;
+    try {
+      await api.deleteTeamMember(id);
+      fetchTeam();
+    } catch (err: any) {
+      alert(err.message || "Failed to delete team member.");
+    }
+  };
+
   return (
-    <Layout user={user?.email || 'Admin'} onLogout={onLogout}>
+    <Layout user={user?.email || "Admin"} onLogout={onLogout}>
       <div className="page-root container">
         <div className="page-header">
           <div>
             <h1>Team Members</h1>
-            <div className="subtitle">{team.length} staff members in your salon</div>
+            <div className="subtitle">
+              {team.length} staff members in your salon
+            </div>
           </div>
+          <button className="btn-add" onClick={openCreate}>
+            + Add Team Member
+          </button>
         </div>
 
         {loading ? (
-          <div className="empty-state"><p>Loading team members...</p></div>
+          <div className="empty-state">
+            <p>Loading team members...</p>
+          </div>
         ) : team.length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon">👥</div>
@@ -56,23 +119,98 @@ export default function TeamPage({ user, onLogout }: Props) {
           <table className="data-table">
             <thead>
               <tr>
-                <th>Email Address</th>
+                <th>Name</th>
                 <th>Role</th>
+                <th>Experience</th>
+                <th style={{ textAlign: "right" }}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {team.map((t) => (
                 <tr key={t.id}>
-                  <td style={{ fontWeight: 600 }}>{t.email}</td>
+                  <td style={{ fontWeight: 600 }}>{t.name}</td>
                   <td>
                     <span className={`badge ${t.role}`}>{t.role}</span>
+                  </td>
+                  <td>{t.experience || "-"}</td>
+                  <td>
+                    <div className="td-actions">
+                      <button className="btn-sm" onClick={() => openEdit(t)}>
+                        Edit
+                      </button>
+                      <button
+                        className="btn-sm danger"
+                        onClick={() => handleDelete(t.id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
+
+        {/* Modal */}
+        {showModal && (
+          <div className="modal-backdrop" onClick={() => setShowModal(false)}>
+            <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+              <h2>{editingMember ? "Edit Team Member" : "Add Team Member"}</h2>
+              <form onSubmit={handleSubmit}>
+                <div className="form-group">
+                  <label>Name</label>
+                  <input
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    placeholder="e.g. Rahul Sharma"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Role</label>
+                  <input
+                    value={form.role}
+                    onChange={(e) => setForm({ ...form, role: e.target.value })}
+                    placeholder="e.g. Senior Stylist"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Experience</label>
+                  <input
+                    value={form.experience}
+                    onChange={(e) =>
+                      setForm({ ...form, experience: e.target.value })
+                    }
+                    placeholder="e.g. 5 Years"
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Photo URL (Optional)</label>
+                  <input
+                    value={form.image_url}
+                    onChange={(e) =>
+                      setForm({ ...form, image_url: e.target.value })
+                    }
+                    placeholder="https://..."
+                  />
+                </div>
+                <div className="modal-actions">
+                  <button
+                    type="button"
+                    className="btn-cancel"
+                    onClick={() => setShowModal(false)}
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn-add">
+                    {editingMember ? "Save Changes" : "Add Member"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </Layout>
-  )
+  );
 }

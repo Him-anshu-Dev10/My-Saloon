@@ -1,5 +1,5 @@
-﻿import { query } from '../config/db';
-import { ApiError } from '../exceptions/ApiError';
+﻿import { query } from "../config/db";
+import { ApiError } from "../exceptions/ApiError";
 
 export class SalonsService {
   /**
@@ -14,36 +14,36 @@ export class SalonsService {
     name?: string,
     rating?: number,
     service?: string,
-    maxPrice?: number
+    maxPrice?: number,
   ) {
     try {
       const queryParams: any[] = [];
       let paramIndex = 1;
-      
-      let selectFields = 's.*';
-      const fromClause = 'salons s';
+
+      let selectFields = "s.*";
+      const fromClause = "salons s";
       const whereClauses: string[] = [];
-      let orderBy = 's.rating DESC';
+      let orderBy = "s.rating DESC";
 
       // 1. Distance / Haversine formula
-      if (typeof lat === 'number' && typeof lon === 'number') {
+      if (typeof lat === "number" && typeof lon === "number") {
         const haversine = `(
           6371 * acos(
             cos(radians($1)) * cos(radians(s.latitude)) * cos(radians(s.longitude) - radians($2))
             + sin(radians($1)) * sin(radians(s.latitude))
           )
         )`;
-        queryParams.push(lat, lon, lat);
-        paramIndex += 3;
+        queryParams.push(lat, lon);
+        paramIndex += 2;
 
         selectFields += `, ${haversine} AS distance_km`;
-        
+
         // Filter by distance/radius
         whereClauses.push(`${haversine} <= $${paramIndex}`);
         queryParams.push(radiusKm);
         paramIndex += 1;
-        
-        orderBy = 'distance_km ASC';
+
+        orderBy = "distance_km ASC";
       }
 
       // 2. Filter by city
@@ -76,7 +76,9 @@ export class SalonsService {
 
       // 6. Filter by service
       if (service) {
-        whereClauses.push(`s.id IN (SELECT salon_id FROM services WHERE name ILIKE $${paramIndex})`);
+        whereClauses.push(
+          `s.id IN (SELECT salon_id FROM services WHERE name ILIKE $${paramIndex})`,
+        );
         queryParams.push(`%${service}%`);
         paramIndex += 1;
       }
@@ -84,16 +86,19 @@ export class SalonsService {
       // Combine SQL
       let sql = `SELECT ${selectFields} FROM ${fromClause}`;
       if (whereClauses.length > 0) {
-        sql += ` WHERE ${whereClauses.join(' AND ')}`;
+        sql += ` WHERE ${whereClauses.join(" AND ")}`;
       }
-      
+
       sql += ` ORDER BY ${orderBy} LIMIT $${paramIndex}`;
       queryParams.push(limit);
 
       const res = await query(sql, queryParams);
       return res.rows;
     } catch (err: any) {
-      throw ApiError.internal(`Failed to fetch salons: ${err.message}`, 'DB_FETCH_ERROR');
+      throw ApiError.internal(
+        `Failed to fetch salons: ${err.message}`,
+        "DB_FETCH_ERROR",
+      );
     }
   }
 
@@ -102,14 +107,23 @@ export class SalonsService {
    */
   public async findSalonById(id: string) {
     try {
-      const salonRes = await query('SELECT * FROM salons WHERE id = $1', [id]);
+      const salonRes = await query("SELECT * FROM salons WHERE id = $1", [id]);
       if (salonRes.rowCount === 0) {
-        throw ApiError.notFound(`Salon with ID ${id} not found`, 'SALON_NOT_FOUND');
+        throw ApiError.notFound(
+          `Salon with ID ${id} not found`,
+          "SALON_NOT_FOUND",
+        );
       }
       const salon = salonRes.rows[0];
 
-      const servicesRes = await query('SELECT * FROM services WHERE salon_id = $1', [id]).catch(() => ({ rows: [] }));
-      const reviewsRes = await query('SELECT * FROM reviews WHERE salon_id = $1', [id]).catch(() => ({ rows: [] }));
+      const servicesRes = await query(
+        "SELECT * FROM public.services WHERE salon_id = $1 ORDER BY name ASC",
+        [id],
+      ).catch(() => ({ rows: [] }));
+      const reviewsRes = await query(
+        "SELECT * FROM public.reviews WHERE salon_id = $1",
+        [id],
+      ).catch(() => ({ rows: [] }));
 
       return {
         ...salon,
@@ -118,14 +132,23 @@ export class SalonsService {
       };
     } catch (err: any) {
       if (err instanceof ApiError) throw err;
-      throw ApiError.internal(`Failed to fetch salon: ${err.message}`, 'DB_FETCH_ERROR');
+      throw ApiError.internal(
+        `Failed to fetch salon: ${err.message}`,
+        "DB_FETCH_ERROR",
+      );
     }
   }
 
   /**
    * Create a new salon
    */
-  public async createSalon(data: { name: string; city: string; latitude?: number; longitude?: number; starting_price?: number }) {
+  public async createSalon(data: {
+    name: string;
+    city: string;
+    latitude?: number;
+    longitude?: number;
+    starting_price?: number;
+  }) {
     try {
       const sql = `
         INSERT INTO salons (name, city, latitude, longitude, rating, starting_price)
@@ -138,18 +161,21 @@ export class SalonsService {
         data.latitude || null,
         data.longitude || null,
         0, // default rating
-        data.starting_price || 0
+        data.starting_price || 0,
       ];
-      
+
       const res = await query(sql, values);
       return res.rows[0];
     } catch (err: any) {
-      throw ApiError.internal(`Failed to create salon: ${err.message}`, 'DB_CREATE_ERROR');
+      throw ApiError.internal(
+        `Failed to create salon: ${err.message}`,
+        "DB_CREATE_ERROR",
+      );
     }
   }
 
   public async getSalonById(id: string) {
-    const result = await query('SELECT * FROM salons WHERE id = $1', [id]);
+    const result = await query("SELECT * FROM salons WHERE id = $1", [id]);
     return result.rows[0] || null;
   }
 }

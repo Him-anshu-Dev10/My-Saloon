@@ -1,114 +1,69 @@
-import { pool } from './config/db';
+import { pool } from "./config/db";
 
 async function seed() {
   const client = await pool.connect();
   try {
-    console.log('Seeding database...');
+    console.log("Seeding database...");
 
-    // Drop existing mock tables to ensure clean schema
-    await client.query('DROP TABLE IF EXISTS public.services CASCADE');
-    await client.query('DROP TABLE IF EXISTS public.salons CASCADE');
+    // Ensure schema exists for production/dev - create necessary tables without inserting mock data.
+    // Keep existing 'salons' table to store salon profile info used across the app.
+    await client.query("CREATE EXTENSION IF NOT EXISTS pgcrypto");
 
-    // 1. Create salons table
     await client.query(`
       CREATE TABLE IF NOT EXISTS public.salons (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         name TEXT NOT NULL,
-        image TEXT NOT NULL,
-        rating NUMERIC,
+        address TEXT,
         city TEXT,
+        state TEXT,
+        country TEXT,
+        image TEXT,
+        logo TEXT,
+        rating NUMERIC,
         starting_price NUMERIC,
         latitude NUMERIC,
-        longitude NUMERIC
+        longitude NUMERIC,
+        google_maps_link TEXT,
+        phone TEXT,
+        email TEXT,
+        working_hours JSONB,
+        description TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
       );
     `);
 
-    // 2. Create services table
     await client.query(`
       CREATE TABLE IF NOT EXISTS public.services (
         id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
         salon_id UUID REFERENCES public.salons(id) ON DELETE CASCADE,
         name TEXT NOT NULL,
+        description TEXT,
         price NUMERIC NOT NULL,
-        duration TEXT NOT NULL
+        duration INTEGER NOT NULL,
+        image_url TEXT,
+        category TEXT,
+        created_at TIMESTAMP DEFAULT NOW()
       );
     `);
 
-    // Check if we already have salons
-    const countRes = await client.query('SELECT count(*) FROM public.salons');
-    const count = parseInt(countRes.rows[0].count, 10);
-    
-    if (count === 0) {
-      console.log('No salons found. Inserting mock salons...');
-      
-      const salons = [
-        {
-          name: 'The Aura Collective',
-          image: 'https://images.unsplash.com/photo-1595476108010-b4d1f10d5e43?q=80&w=800&auto=format&fit=crop',
-          rating: 4.9,
-          city: 'New York',
-          starting_price: 85,
-          latitude: 40.7128,
-          longitude: -74.0060
-        },
-        {
-          name: 'Noir Facials & Spa',
-          image: 'https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?q=80&w=800&auto=format&fit=crop',
-          rating: 4.8,
-          city: 'New York',
-          starting_price: 120,
-          latitude: 40.7282,
-          longitude: -73.9942
-        },
-        {
-          name: 'Luxe Grooming',
-          image: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?q=80&w=800&auto=format&fit=crop',
-          rating: 4.7,
-          city: 'New York',
-          starting_price: 55,
-          latitude: 40.7484,
-          longitude: -73.9857
-        },
-        {
-          name: 'Glowup Signature Salon',
-          image: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=800&auto=format&fit=crop',
-          rating: 5.0,
-          city: 'Los Angeles',
-          starting_price: 150,
-          latitude: 34.0522,
-          longitude: -118.2437
-        }
-      ];
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS public.team_members (
+        id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        salon_id UUID REFERENCES public.salons(id) ON DELETE CASCADE,
+        name TEXT NOT NULL,
+        role TEXT,
+        experience TEXT,
+        image_url TEXT,
+        service_ids UUID[] DEFAULT '{}',
+        availability JSONB,
+        created_at TIMESTAMP DEFAULT NOW()
+      );
+    `);
 
-      for (const salon of salons) {
-        const res = await client.query(
-          `INSERT INTO public.salons (name, image, rating, city, starting_price, latitude, longitude) 
-           VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`,
-          [salon.name, salon.image, salon.rating, salon.city, salon.starting_price, salon.latitude, salon.longitude]
-        );
-        const salonId = res.rows[0].id;
-
-        // Insert services
-        const services = [
-          { name: 'Signature Haircut', price: salon.starting_price, duration: '45 min' },
-          { name: 'Premium Balayage', price: salon.starting_price + 100, duration: '120 min' },
-          { name: 'Keratin Treatment', price: salon.starting_price + 150, duration: '90 min' },
-          { name: 'Deep Tissue Massage', price: salon.starting_price + 50, duration: '60 min' }
-        ];
-
-        for (const service of services) {
-          await client.query(
-            `INSERT INTO public.services (salon_id, name, price, duration) VALUES ($1, $2, $3, $4)`,
-            [salonId, service.name, service.price, service.duration]
-          );
-        }
-      }
-      console.log('Successfully inserted mock salons and services!');
-    } else {
-      console.log('Database already has salons, skipping insertion.');
-    }
+    // No mock inserts — keep DB empty so frontends rely on real Admin-created data.
+    console.log("Database schema ensured (no mock inserts).");
   } catch (err) {
-    console.error('Error seeding database:', err);
+    console.error("Error seeding database:", err);
   } finally {
     client.release();
     pool.end();

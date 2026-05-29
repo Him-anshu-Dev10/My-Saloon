@@ -6,14 +6,21 @@ import {
   updateService,
   deleteService,
   getTeam,
+  createTeamMember,
+  updateTeamMember,
+  deleteTeamMember,
   getSalonProfile,
+  createSalonProfile,
   updateSalonProfile,
+  createSuperAdminSalon,
+  updateSuperAdminSalon,
+  deleteSuperAdminSalon,
 } from "../controllers/admin.controller";
 import {
   getAdminBookings,
   getAdminBookingById,
   updateAdminBooking,
-  deleteAdminBooking
+  deleteAdminBooking,
 } from "../controllers/bookings.controller";
 
 const router = Router();
@@ -35,9 +42,19 @@ router.delete("/services/:id", deleteService);
 
 // Team
 router.get("/team", getTeam);
+router.post("/team", createTeamMember);
+router.put("/team/:id", updateTeamMember);
+router.delete("/team/:id", deleteTeamMember);
 
 // Salon Profile
 router.get("/salon-profile", getSalonProfile);
+router.post("/salon-profile", createSalonProfile);
 router.put("/salon-profile", updateSalonProfile);
+
+// SuperAdmin Salon Management
+import { requireSuperAdmin } from "../middlewares/auth";
+router.post("/salons", requireSuperAdmin, createSuperAdminSalon);
+router.put("/salons/:id", requireSuperAdmin, updateSuperAdminSalon);
+router.delete("/salons/:id", requireSuperAdmin, deleteSuperAdminSalon);
 
 export default router;

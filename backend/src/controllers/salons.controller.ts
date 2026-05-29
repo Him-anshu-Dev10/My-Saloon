@@ -1,6 +1,6 @@
-import { Request, Response } from 'express';
-import asyncHandler from 'express-async-handler';
-import { SalonsService } from '../services/salons.service';
+import { Request, Response } from "express";
+import asyncHandler from "express-async-handler";
+import { SalonsService } from "../services/salons.service";
 
 export class SalonsController {
   private salonsService: SalonsService;
@@ -18,11 +18,17 @@ export class SalonsController {
     const city = req.query.city ? String(req.query.city) : undefined;
     const lat = req.query.lat ? parseFloat(String(req.query.lat)) : undefined;
     const lon = req.query.lon ? parseFloat(String(req.query.lon)) : undefined;
-    const radius = req.query.radius ? parseFloat(String(req.query.radius)) : undefined;
+    const radius = req.query.radius
+      ? parseFloat(String(req.query.radius))
+      : undefined;
     const name = req.query.name ? String(req.query.name) : undefined;
-    const rating = req.query.rating ? parseFloat(String(req.query.rating)) : undefined;
+    const rating = req.query.rating
+      ? parseFloat(String(req.query.rating))
+      : undefined;
     const service = req.query.service ? String(req.query.service) : undefined;
-    const maxPrice = req.query.maxPrice ? parseFloat(String(req.query.maxPrice)) : undefined;
+    const maxPrice = req.query.maxPrice
+      ? parseFloat(String(req.query.maxPrice))
+      : undefined;
 
     const salons = await this.salonsService.findAllSalons(
       limit,
@@ -33,12 +39,12 @@ export class SalonsController {
       name,
       rating,
       service,
-      maxPrice
+      maxPrice,
     );
-    
+
     res.status(200).json({
       success: true,
-      data: salons
+      data: salons,
     });
   });
 
@@ -48,14 +54,15 @@ export class SalonsController {
    */
   public getSalonById = asyncHandler(async (req: Request, res: Response) => {
     const { id } = req.params;
-    const salon = await this.salonsService.getSalonById(id);
+    // Use findSalonById to include services and reviews
+    const salon = await this.salonsService.findSalonById(id);
     if (!salon) {
       res.status(404);
-      throw new Error('Salon not found');
+      throw new Error("Salon not found");
     }
     res.status(200).json({
       success: true,
-      data: salon
+      data: salon,
     });
   });
 
@@ -65,17 +72,23 @@ export class SalonsController {
    */
   public createSalon = asyncHandler(async (req: Request, res: Response) => {
     const { name, city, latitude, longitude, starting_price } = req.body;
-    
+
     if (!name || !city) {
       res.status(400);
-      throw new Error('Please provide name and city');
+      throw new Error("Please provide name and city");
     }
 
-    const salon = await this.salonsService.createSalon({ name, city, latitude, longitude, starting_price });
+    const salon = await this.salonsService.createSalon({
+      name,
+      city,
+      latitude,
+      longitude,
+      starting_price,
+    });
 
     res.status(201).json({
       success: true,
-      data: salon
+      data: salon,
     });
   });
 }

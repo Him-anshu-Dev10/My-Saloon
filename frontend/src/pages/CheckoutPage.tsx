@@ -1,47 +1,73 @@
-import { ArrowLeft, User, CreditCard, Calendar, Lock, CheckCircle2, Heart, Loader2, Sparkles } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { CountryCodeSelector } from '../components/CountryCodeSelector';
-
-const HAIRSTYLES = [
-  { id: 'h1', name: 'Signature Silk Facial', price: 145, duration: '60 mins', image: 'https://images.unsplash.com/photo-1570172619644-defd82cb1601?q=80&w=200&auto=format&fit=crop' },
-  { id: 'h2', name: 'Luxe Balayage', price: 240, duration: '180 mins', image: 'https://images.unsplash.com/photo-1562322140-8baeececf3df?q=80&w=200&auto=format&fit=crop' },
-  { id: 'h3', name: 'Signature Haircut', price: 85, duration: '60 mins', image: 'https://images.unsplash.com/photo-1595476108010-b4d1f10d5e43?q=80&w=200&auto=format&fit=crop' },
-];
-
-const STYLISTS = [
-  { id: 's1', name: 'Elena V.', role: 'Senior Stylist' },
-  { id: 's2', name: 'Marcus T.', role: 'Lead Colorist' },
-  { id: 's3', name: 'Sophie L.', role: 'Master Esthetician' },
-];
+import {
+  ArrowLeft,
+  User,
+  CreditCard,
+  Calendar,
+  Lock,
+  CheckCircle2,
+  Heart,
+  Loader2,
+  Sparkles,
+} from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { CountryCodeSelector } from "../components/CountryCodeSelector";
 
 export function CheckoutPage() {
   const navigate = useNavigate();
+  const base =
+    import.meta.env.VITE_BACKEND_URL || "http://localhost:3000/api/v1";
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
+  const [teamMembers, setTeamMembers] = useState<any[]>([]);
 
   // Form State
   const [bookingData, setBookingData] = useState({
-    hairstyle: '',
-    serviceName: '',
-    stylist: '',
-    booking_date: '',
-    booking_time: '',
-    customer_name: '',
-    customer_email: '',
-    country_code: '+91',
-    mobile: '',
-    notes: '',
-    payment_method: 'credit_card',
+    hairstyle: "",
+    serviceName: "",
+    stylist: "",
+    booking_date: "",
+    booking_time: "",
+    customer_name: "",
+    customer_email: "",
+    country_code: "+91",
+    mobile: "",
+    notes: "",
+    payment_method: "credit_card",
     total_price: 0,
   });
 
-  const [salonServices, setSalonServices] = useState<any[]>(HAIRSTYLES);
+  const [salonServices, setSalonServices] = useState<any[]>([]);
+
+  const filteredTeamMembers = useMemo(() => {
+    if (!bookingData.hairstyle) return teamMembers;
+    return teamMembers.filter((member) => {
+      if (
+        !Array.isArray(member.service_ids) ||
+        member.service_ids.length === 0
+      ) {
+        return true;
+      }
+      return member.service_ids.includes(bookingData.hairstyle);
+    });
+  }, [teamMembers, bookingData.hairstyle]);
 
   // Pre-fill user data and selections from sessionStorage
   useEffect(() => {
+    const getSalonIdFromStorage = () => {
+      try {
+        const raw = sessionStorage.getItem("selectedSalon");
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        return parsed?.id || parsed?.salon_id || parsed?.salonId || null;
+      } catch (e) {
+        console.error("Failed to parse selectedSalon", e);
+        return null;
+      }
+    };
+
     const isVerified = sessionStorage.getItem("isVerified") === "true";
     if (isVerified) {
       setBookingData((prev) => ({
@@ -61,8 +87,14 @@ export function CheckoutPage() {
             id: item.id,
             name: item.name,
             price: Number(item.price),
-            duration: item.duration || '60 mins',
-            image: item.image || 'https://images.unsplash.com/photo-1595476108010-b4d1f10d5e43?q=80&w=200&auto=format&fit=crop'
+            duration:
+              typeof item.duration === "number"
+                ? `${item.duration} mins`
+                : item.duration || "60 mins",
+            image:
+              item.image_url ||
+              item.image ||
+              "https://images.unsplash.com/photo-1595476108010-b4d1f10d5e43?q=80&w=200&auto=format&fit=crop",
           }));
           setSalonServices(formatted);
         }
@@ -70,6 +102,49 @@ export function CheckoutPage() {
         console.error("Failed to parse selectedSalonServices", e);
       }
     }
+
+    const fetchSalonServices = async () => {
+      try {
+        const salonId = getSalonIdFromStorage();
+        if (!salonId) return;
+
+        const res = await fetch(`${base}/services?salon_id=${salonId}`);
+        if (!res.ok) {
+          throw new Error(`Failed services API: ${res.status}`);
+        }
+
+        const data = await res.json();
+        const serviceRows = Array.isArray(data?.data)
+          ? data.data
+          : Array.isArray(data?.services)
+            ? data.services
+            : [];
+
+        if (data.success && serviceRows.length > 0) {
+          const formatted = serviceRows.map((item: any) => ({
+            id: item.id,
+            name: item.name,
+            price: Number(item.price),
+            duration:
+              typeof item.duration === "number"
+                ? `${item.duration} mins`
+                : item.duration || "60 mins",
+            image:
+              item.image_url ||
+              item.image ||
+              "https://images.unsplash.com/photo-1595476108010-b4d1f10d5e43?q=80&w=200&auto=format&fit=crop",
+          }));
+
+          setSalonServices(formatted);
+        } else {
+          setSalonServices([]);
+        }
+      } catch (err) {
+        console.error("Failed to fetch salon services", err);
+      }
+    };
+
+    fetchSalonServices();
 
     // Preselect the first selected service from details page if present
     const savedSelected = sessionStorage.getItem("selectedServices");
@@ -82,14 +157,48 @@ export function CheckoutPage() {
             ...prev,
             hairstyle: first.id,
             serviceName: first.name,
-            total_price: Number(first.price)
+            total_price: Number(first.price),
           }));
         }
       } catch (e) {
         console.error(e);
       }
     }
-  }, []);
+
+    // Fetch team members from backend for the selected salon
+    const fetchTeam = async () => {
+      try {
+        let salonIdQuery = "";
+        const salonId = getSalonIdFromStorage();
+        if (salonId) salonIdQuery = `?salon_id=${salonId}`;
+
+        const res = await fetch(`${base}/team${salonIdQuery}`);
+        if (!res.ok) {
+          throw new Error(`Failed team API: ${res.status}`);
+        }
+
+        const data = await res.json();
+        if (data.success) {
+          setTeamMembers(data.data || []);
+        } else {
+          setTeamMembers([]);
+        }
+      } catch (e) {
+        console.error("Failed to fetch team members", e);
+      }
+    };
+    fetchTeam();
+  }, [base]);
+
+  useEffect(() => {
+    if (
+      bookingData.stylist &&
+      !filteredTeamMembers.some((member) => member.name === bookingData.stylist)
+    ) {
+      setBookingData((prev) => ({ ...prev, stylist: "", booking_time: "" }));
+      setAvailableSlots([]);
+    }
+  }, [filteredTeamMembers, bookingData.stylist]);
 
   // Fetch Slots when date and stylist are selected
   useEffect(() => {
@@ -97,7 +206,9 @@ export function CheckoutPage() {
       const fetchSlots = async () => {
         setLoadingSlots(true);
         try {
-          const res = await fetch(`http://localhost:3000/api/v1/bookings/slots?date=${bookingData.booking_date}&stylist=${bookingData.stylist}`);
+          const res = await fetch(
+            `${base}/bookings/slots?date=${bookingData.booking_date}&stylist=${bookingData.stylist}`,
+          );
           const data = await res.json();
           if (data.success) {
             setAvailableSlots(data.availableSlots);
@@ -116,21 +227,30 @@ export function CheckoutPage() {
     setBookingData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSelectHairstyle = (hs: typeof HAIRSTYLES[0]) => {
-    handleUpdate('hairstyle', hs.id);
-    handleUpdate('serviceName', hs.name);
-    handleUpdate('total_price', hs.price);
+  const handleSelectHairstyle = (hs: any) => {
+    handleUpdate("hairstyle", hs.id);
+    handleUpdate("serviceName", hs.name);
+    handleUpdate("total_price", hs.price);
   };
 
   const handleNextStep = () => {
     if (step === 1) {
-      if (!bookingData.hairstyle || !bookingData.stylist || !bookingData.booking_date || !bookingData.booking_time) {
+      if (
+        !bookingData.hairstyle ||
+        !bookingData.stylist ||
+        !bookingData.booking_date ||
+        !bookingData.booking_time
+      ) {
         alert("Please complete all selections.");
         return;
       }
     }
     if (step === 2) {
-      if (!bookingData.customer_name || !bookingData.customer_email || !bookingData.mobile) {
+      if (
+        !bookingData.customer_name ||
+        !bookingData.customer_email ||
+        !bookingData.mobile
+      ) {
         alert("Please fill in all contact details.");
         return;
       }
@@ -152,7 +272,7 @@ export function CheckoutPage() {
         if (storedSalon) {
           salonId = JSON.parse(storedSalon).id;
         }
-      } catch(e) {}
+      } catch (e) {}
 
       const payload = {
         ...bookingData,
@@ -160,7 +280,7 @@ export function CheckoutPage() {
         salon_id: salonId,
       };
 
-      const res = await fetch("http://localhost:3000/api/v1/bookings", {
+      const res = await fetch(`${base}/bookings`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -190,28 +310,34 @@ export function CheckoutPage() {
       {/* Detail View Navbar */}
       <nav className="flex items-center justify-between px-8 py-5 mx-auto max-w-6xl">
         <div className="flex items-center gap-4">
-           <button 
-              onClick={() => {
-                if (step > 1) setStep(step - 1);
-                else navigate(-1);
-              }}
-              className="w-10 h-10 flex items-center justify-center border border-stone-200 text-stone-500 rounded-lg hover:border-stone-400 hover:text-stone-800 transition-colors bg-white shadow-sm"
-            >
-              <ArrowLeft size={18} strokeWidth={2.5}/>
-           </button>
-           <button 
-            onClick={() => navigate('/')}
+          <button
+            onClick={() => {
+              if (step > 1) setStep(step - 1);
+              else navigate(-1);
+            }}
+            className="w-10 h-10 flex items-center justify-center border border-stone-200 text-stone-500 rounded-lg hover:border-stone-400 hover:text-stone-800 transition-colors bg-white shadow-sm"
+          >
+            <ArrowLeft size={18} strokeWidth={2.5} />
+          </button>
+          <button
+            onClick={() => navigate("/")}
             className="text-2xl font-semibold font-serif italic text-[#313131] hover:text-[#C49B89] transition-colors"
           >
             Glowup
           </button>
         </div>
-        
+
         {/* Stepper indicator */}
         <div className="hidden md:flex items-center gap-3">
-          <div className={`h-2 w-12 rounded-full ${step >= 1 ? 'bg-[#CA9A86]' : 'bg-stone-200'}`}></div>
-          <div className={`h-2 w-12 rounded-full ${step >= 2 ? 'bg-[#CA9A86]' : 'bg-stone-200'}`}></div>
-          <div className={`h-2 w-12 rounded-full ${step >= 3 ? 'bg-[#CA9A86]' : 'bg-stone-200'}`}></div>
+          <div
+            className={`h-2 w-12 rounded-full ${step >= 1 ? "bg-[#CA9A86]" : "bg-stone-200"}`}
+          ></div>
+          <div
+            className={`h-2 w-12 rounded-full ${step >= 2 ? "bg-[#CA9A86]" : "bg-stone-200"}`}
+          ></div>
+          <div
+            className={`h-2 w-12 rounded-full ${step >= 3 ? "bg-[#CA9A86]" : "bg-stone-200"}`}
+          ></div>
         </div>
 
         <div className="flex items-center space-x-4">
@@ -223,10 +349,8 @@ export function CheckoutPage() {
 
       <main className="max-w-6xl mx-auto px-8 pt-8">
         <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-12 items-start">
-          
           {/* Left Content Column */}
           <div className="flex flex-col gap-10">
-            
             {/* STEP 1: SERVICE & SLOT */}
             {step === 1 && (
               <section className="animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -234,27 +358,36 @@ export function CheckoutPage() {
                   <Sparkles size={20} className="text-[#CA9A86]" />
                   Select Service & Time
                 </h2>
-                
+
                 <div className="bg-white rounded-[24px] p-8 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-100 flex flex-col gap-8">
-                  
                   {/* Service Selection */}
                   <div>
-                    <h3 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-4">1. Choose Service</h3>
+                    <h3 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-4">
+                      1. Choose Service
+                    </h3>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       {salonServices.map((hs) => (
-                        <div 
+                        <div
                           key={hs.id}
                           onClick={() => handleSelectHairstyle(hs)}
-                          className={`relative rounded-xl border-2 cursor-pointer overflow-hidden group transition-all ${bookingData.hairstyle === hs.id ? 'border-[#CA9A86]' : 'border-stone-100 hover:border-stone-300'}`}
+                          className={`relative rounded-xl border-2 cursor-pointer overflow-hidden group transition-all ${bookingData.hairstyle === hs.id ? "border-[#CA9A86]" : "border-stone-100 hover:border-stone-300"}`}
                         >
                           <div className="h-28 w-full">
-                            <img src={hs.image} alt={hs.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                            <img
+                              src={hs.image}
+                              alt={hs.name}
+                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
                           </div>
                           <div className="p-4 bg-white">
-                            <h4 className="font-medium text-stone-800 text-sm mb-1">{hs.name}</h4>
+                            <h4 className="font-medium text-stone-800 text-sm mb-1">
+                              {hs.name}
+                            </h4>
                             <div className="flex justify-between items-center text-xs text-stone-500">
                               <span>{hs.duration}</span>
-                              <span className="font-semibold text-[#CA9A86]">${hs.price}</span>
+                              <span className="font-semibold text-[#CA9A86]">
+                                ${hs.price}
+                              </span>
                             </div>
                           </div>
                           {bookingData.hairstyle === hs.id && (
@@ -269,35 +402,64 @@ export function CheckoutPage() {
 
                   {/* Stylist Selection */}
                   <div>
-                    <h3 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-4">2. Select Stylist</h3>
+                    <h3 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-4">
+                      2. Select Stylist
+                    </h3>
                     <div className="flex gap-4 overflow-x-auto pb-2 -mx-2 px-2 scrollbar-hide">
-                      {STYLISTS.map((st) => (
-                        <div 
-                          key={st.id}
-                          onClick={() => handleUpdate('stylist', st.name)}
-                          className={`flex-shrink-0 w-[140px] p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center gap-3 text-center ${bookingData.stylist === st.name ? 'border-[#CA9A86] bg-[#F9F4F2]' : 'border-stone-100 bg-white hover:border-stone-200'}`}
-                        >
-                          <div className="w-14 h-14 rounded-full bg-stone-200 overflow-hidden">
-                            <img src={`https://ui-avatars.com/api/?name=${st.name}&background=DEB5A4&color=fff`} alt={st.name} />
+                      {filteredTeamMembers.length > 0 ? (
+                        filteredTeamMembers.map((st) => (
+                          <div
+                            key={st.id}
+                            onClick={() => handleUpdate("stylist", st.name)}
+                            className={`flex-shrink-0 w-[140px] p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center gap-3 text-center ${bookingData.stylist === st.name ? "border-[#CA9A86] bg-[#F9F4F2]" : "border-stone-100 bg-white hover:border-stone-200"}`}
+                          >
+                            <div className="w-14 h-14 rounded-full bg-stone-200 overflow-hidden flex items-center justify-center">
+                              {st.image_url ? (
+                                <img
+                                  src={st.image_url}
+                                  alt={st.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <img
+                                  src={`https://ui-avatars.com/api/?name=${st.name}&background=DEB5A4&color=fff`}
+                                  alt={st.name}
+                                />
+                              )}
+                            </div>
+                            <div>
+                              <p className="font-medium text-stone-800 text-sm">
+                                {st.name}
+                              </p>
+                              <p className="text-[11px] text-stone-500 mt-0.5">
+                                {st.role}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-medium text-stone-800 text-sm">{st.name}</p>
-                            <p className="text-[11px] text-stone-500 mt-0.5">{st.role}</p>
-                          </div>
-                        </div>
-                      ))}
+                        ))
+                      ) : (
+                        <p className="text-sm text-stone-500 px-2">
+                          {bookingData.hairstyle
+                            ? "No stylists available for selected service."
+                            : "No team members available for this salon."}
+                        </p>
+                      )}
                     </div>
                   </div>
 
                   {/* Date Selection */}
                   <div>
-                    <h3 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-4">3. Select Date</h3>
-                    <input 
-                      type="date" 
-                      min={new Date().toISOString().split('T')[0]}
+                    <h3 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-4">
+                      3. Select Date
+                    </h3>
+                    <input
+                      type="date"
+                      min={new Date().toISOString().split("T")[0]}
                       value={bookingData.booking_date}
-                      onChange={(e) => handleUpdate('booking_date', e.target.value)}
-                      className="bg-[#F6F5F2] border-transparent focus:border-[#C49B89] focus:ring-1 focus:ring-[#C49B89] focus:bg-white rounded-xl px-5 py-3.5 outline-none transition-all text-stone-700 w-full md:w-1/2" 
+                      onChange={(e) =>
+                        handleUpdate("booking_date", e.target.value)
+                      }
+                      className="bg-[#F6F5F2] border-transparent focus:border-[#C49B89] focus:ring-1 focus:ring-[#C49B89] focus:bg-white rounded-xl px-5 py-3.5 outline-none transition-all text-stone-700 w-full md:w-1/2"
                     />
                   </div>
 
@@ -306,33 +468,41 @@ export function CheckoutPage() {
                     <div className="animate-in fade-in">
                       <h3 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-4 flex items-center gap-2">
                         4. Available Slots
-                        {loadingSlots && <Loader2 size={14} className="animate-spin text-[#CA9A86]" />}
+                        {loadingSlots && (
+                          <Loader2
+                            size={14}
+                            className="animate-spin text-[#CA9A86]"
+                          />
+                        )}
                       </h3>
                       {availableSlots.length > 0 ? (
                         <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                           {availableSlots.map((slot) => (
                             <button
                               key={slot}
-                              onClick={() => handleUpdate('booking_time', slot)}
-                              className={`py-3 rounded-lg text-sm font-medium border-2 transition-colors ${bookingData.booking_time === slot ? 'border-[#CA9A86] bg-[#CA9A86] text-white' : 'border-stone-100 bg-white text-stone-600 hover:border-stone-300'}`}
+                              onClick={() => handleUpdate("booking_time", slot)}
+                              className={`py-3 rounded-lg text-sm font-medium border-2 transition-colors ${bookingData.booking_time === slot ? "border-[#CA9A86] bg-[#CA9A86] text-white" : "border-stone-100 bg-white text-stone-600 hover:border-stone-300"}`}
                             >
                               {slot}
                             </button>
                           ))}
                         </div>
                       ) : (
-                        !loadingSlots && <p className="text-red-500 text-sm">No slots available for this date and stylist.</p>
+                        !loadingSlots && (
+                          <p className="text-red-500 text-sm">
+                            No slots available for this date and stylist.
+                          </p>
+                        )
                       )}
                     </div>
                   )}
 
-                  <button 
+                  <button
                     onClick={handleNextStep}
                     className="w-full mt-4 bg-[#CA9A86] hover:bg-[#B38775] text-white px-6 py-4 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 shadow-sm"
                   >
                     Continue to Details
                   </button>
-
                 </div>
               </section>
             )}
@@ -344,62 +514,74 @@ export function CheckoutPage() {
                   <User size={20} className="text-[#CA9A86]" />
                   Contact Details
                 </h2>
-                
+
                 <div className="bg-white rounded-[24px] p-8 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-100 flex flex-col gap-6">
-                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="flex flex-col gap-2">
-                        <label className="text-sm font-medium text-stone-600">Full Name</label>
-                        <input 
-                          type="text" 
-                          placeholder="Julianne Moore"
-                          value={bookingData.customer_name}
-                          onChange={(e) => handleUpdate('customer_name', e.target.value)}
-                          className="bg-[#F6F5F2] border-transparent focus:border-[#C49B89] focus:ring-1 focus:ring-[#C49B89] focus:bg-white rounded-xl px-5 py-3.5 outline-none transition-all text-stone-700" 
-                        />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <label className="text-sm font-medium text-stone-600">Email Address</label>
-                        <input 
-                          type="email" 
-                          placeholder="j.moore@atelier.com"
-                          value={bookingData.customer_email}
-                          onChange={(e) => handleUpdate('customer_email', e.target.value)}
-                          className="bg-[#F6F5F2] border-transparent focus:border-[#C49B89] focus:ring-1 focus:ring-[#C49B89] focus:bg-white rounded-xl px-5 py-3.5 outline-none transition-all text-stone-700" 
-                        />
-                      </div>
-                   </div>
-                   <div className="flex flex-col gap-2">
-                      <label className="text-sm font-medium text-stone-600">Phone Number</label>
-                      <div className="flex">
-                        <CountryCodeSelector 
-                          selectedCountry={bookingData.country_code}
-                          onChange={(code) => handleUpdate('country_code', code)}
-                        />
-                        <input 
-                          type="tel" 
-                          placeholder="9876543210" 
-                          value={bookingData.mobile}
-                          onChange={(e) => handleUpdate('mobile', e.target.value)}
-                          className="flex-1 bg-[#F6F5F2] border-transparent focus:border-[#C49B89] focus:ring-1 focus:ring-[#C49B89] focus:bg-white rounded-r-xl px-5 py-3.5 outline-none transition-all text-stone-700" 
-                        />
-                      </div>
-                    </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="flex flex-col gap-2">
-                      <label className="text-sm font-medium text-stone-600">Special Notes (Optional)</label>
-                      <textarea 
-                        placeholder="Any allergies, requests, etc."
-                        value={bookingData.notes}
-                        onChange={(e) => handleUpdate('notes', e.target.value)}
-                        className="bg-[#F6F5F2] border-transparent focus:border-[#C49B89] focus:ring-1 focus:ring-[#C49B89] focus:bg-white rounded-xl px-5 py-3.5 outline-none transition-all text-stone-700 min-h-[100px] resize-none" 
+                      <label className="text-sm font-medium text-stone-600">
+                        Full Name
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Julianne Moore"
+                        value={bookingData.customer_name}
+                        onChange={(e) =>
+                          handleUpdate("customer_name", e.target.value)
+                        }
+                        className="bg-[#F6F5F2] border-transparent focus:border-[#C49B89] focus:ring-1 focus:ring-[#C49B89] focus:bg-white rounded-xl px-5 py-3.5 outline-none transition-all text-stone-700"
                       />
                     </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-sm font-medium text-stone-600">
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        placeholder="j.moore@atelier.com"
+                        value={bookingData.customer_email}
+                        onChange={(e) =>
+                          handleUpdate("customer_email", e.target.value)
+                        }
+                        className="bg-[#F6F5F2] border-transparent focus:border-[#C49B89] focus:ring-1 focus:ring-[#C49B89] focus:bg-white rounded-xl px-5 py-3.5 outline-none transition-all text-stone-700"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-stone-600">
+                      Phone Number
+                    </label>
+                    <div className="flex">
+                      <CountryCodeSelector
+                        selectedCountry={bookingData.country_code}
+                        onChange={(code) => handleUpdate("country_code", code)}
+                      />
+                      <input
+                        type="tel"
+                        placeholder="9876543210"
+                        value={bookingData.mobile}
+                        onChange={(e) => handleUpdate("mobile", e.target.value)}
+                        className="flex-1 bg-[#F6F5F2] border-transparent focus:border-[#C49B89] focus:ring-1 focus:ring-[#C49B89] focus:bg-white rounded-r-xl px-5 py-3.5 outline-none transition-all text-stone-700"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-stone-600">
+                      Special Notes (Optional)
+                    </label>
+                    <textarea
+                      placeholder="Any allergies, requests, etc."
+                      value={bookingData.notes}
+                      onChange={(e) => handleUpdate("notes", e.target.value)}
+                      className="bg-[#F6F5F2] border-transparent focus:border-[#C49B89] focus:ring-1 focus:ring-[#C49B89] focus:bg-white rounded-xl px-5 py-3.5 outline-none transition-all text-stone-700 min-h-[100px] resize-none"
+                    />
+                  </div>
 
-                    <button 
-                      onClick={handleNextStep}
-                      className="w-full mt-4 bg-[#CA9A86] hover:bg-[#B38775] text-white px-6 py-4 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 shadow-sm"
-                    >
-                      Continue to Payment
-                    </button>
+                  <button
+                    onClick={handleNextStep}
+                    className="w-full mt-4 bg-[#CA9A86] hover:bg-[#B38775] text-white px-6 py-4 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 shadow-sm"
+                  >
+                    Continue to Payment
+                  </button>
                 </div>
               </section>
             )}
@@ -411,92 +593,192 @@ export function CheckoutPage() {
                   <CreditCard size={20} className="text-[#CA9A86]" />
                   Payment Method
                 </h2>
-                
+
                 <div className="grid grid-cols-2 gap-4 mb-6">
-                  <button 
-                    onClick={() => handleUpdate('payment_method', 'credit_card')}
-                    className={`flex flex-col items-center justify-center gap-2 px-6 py-5 rounded-xl font-medium transition-all ${bookingData.payment_method === 'credit_card' ? 'bg-[#F9F4F2] border-2 border-[#DEB5A4] text-stone-800' : 'bg-white border-2 border-stone-100 text-stone-500 hover:border-stone-300'}`}
+                  <button
+                    onClick={() =>
+                      handleUpdate("payment_method", "credit_card")
+                    }
+                    className={`flex flex-col items-center justify-center gap-2 px-6 py-5 rounded-xl font-medium transition-all ${bookingData.payment_method === "credit_card" ? "bg-[#F9F4F2] border-2 border-[#DEB5A4] text-stone-800" : "bg-white border-2 border-stone-100 text-stone-500 hover:border-stone-300"}`}
                   >
-                    <CreditCard size={24} className={bookingData.payment_method === 'credit_card' ? 'text-[#CA9A86]' : ''} /> 
+                    <CreditCard
+                      size={24}
+                      className={
+                        bookingData.payment_method === "credit_card"
+                          ? "text-[#CA9A86]"
+                          : ""
+                      }
+                    />
                     <span>Credit Card</span>
                   </button>
-                  <button 
-                    onClick={() => handleUpdate('payment_method', 'upi')}
-                    className={`flex flex-col items-center justify-center gap-2 px-6 py-5 rounded-xl font-medium transition-all ${bookingData.payment_method === 'upi' ? 'bg-[#F9F4F2] border-2 border-[#DEB5A4] text-stone-800' : 'bg-white border-2 border-stone-100 text-stone-500 hover:border-stone-300'}`}
+                  <button
+                    onClick={() => handleUpdate("payment_method", "upi")}
+                    className={`flex flex-col items-center justify-center gap-2 px-6 py-5 rounded-xl font-medium transition-all ${bookingData.payment_method === "upi" ? "bg-[#F9F4F2] border-2 border-[#DEB5A4] text-stone-800" : "bg-white border-2 border-stone-100 text-stone-500 hover:border-stone-300"}`}
                   >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={bookingData.payment_method === 'upi' ? 'text-[#CA9A86]' : ''}><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className={
+                        bookingData.payment_method === "upi"
+                          ? "text-[#CA9A86]"
+                          : ""
+                      }
+                    >
+                      <rect x="2" y="5" width="20" height="14" rx="2" />
+                      <path d="M2 10h20" />
+                    </svg>
                     <span>UPI</span>
                   </button>
-                  <button 
-                    onClick={() => handleUpdate('payment_method', 'wallet')}
-                    className={`flex flex-col items-center justify-center gap-2 px-6 py-5 rounded-xl font-medium transition-all ${bookingData.payment_method === 'wallet' ? 'bg-[#F9F4F2] border-2 border-[#DEB5A4] text-stone-800' : 'bg-white border-2 border-stone-100 text-stone-500 hover:border-stone-300'}`}
+                  <button
+                    onClick={() => handleUpdate("payment_method", "wallet")}
+                    className={`flex flex-col items-center justify-center gap-2 px-6 py-5 rounded-xl font-medium transition-all ${bookingData.payment_method === "wallet" ? "bg-[#F9F4F2] border-2 border-[#DEB5A4] text-stone-800" : "bg-white border-2 border-stone-100 text-stone-500 hover:border-stone-300"}`}
                   >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={bookingData.payment_method === 'wallet' ? 'text-[#CA9A86]' : ''}><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className={
+                        bookingData.payment_method === "wallet"
+                          ? "text-[#CA9A86]"
+                          : ""
+                      }
+                    >
+                      <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+                      <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+                      <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
+                    </svg>
                     <span>Wallet</span>
                   </button>
-                  <button 
-                    onClick={() => handleUpdate('payment_method', 'cash')}
-                    className={`flex flex-col items-center justify-center gap-2 px-6 py-5 rounded-xl font-medium transition-all ${bookingData.payment_method === 'cash' ? 'bg-[#F9F4F2] border-2 border-[#DEB5A4] text-stone-800' : 'bg-white border-2 border-stone-100 text-stone-500 hover:border-stone-300'}`}
+                  <button
+                    onClick={() => handleUpdate("payment_method", "cash")}
+                    className={`flex flex-col items-center justify-center gap-2 px-6 py-5 rounded-xl font-medium transition-all ${bookingData.payment_method === "cash" ? "bg-[#F9F4F2] border-2 border-[#DEB5A4] text-stone-800" : "bg-white border-2 border-stone-100 text-stone-500 hover:border-stone-300"}`}
                   >
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={bookingData.payment_method === 'cash' ? 'text-[#CA9A86]' : ''}><circle cx="12" cy="12" r="10"/><path d="M12 8v8"/><path d="M8 12h8"/></svg>
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      className={
+                        bookingData.payment_method === "cash"
+                          ? "text-[#CA9A86]"
+                          : ""
+                      }
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="M12 8v8" />
+                      <path d="M8 12h8" />
+                    </svg>
                     <span>Cash at Salon</span>
                   </button>
                 </div>
 
                 <div className="bg-white rounded-[24px] p-8 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-100 flex flex-col gap-6">
-                  {bookingData.payment_method === 'credit_card' && (
+                  {bookingData.payment_method === "credit_card" && (
                     <div className="animate-in fade-in flex flex-col gap-6">
                       <div className="flex flex-col gap-2">
-                        <label className="text-sm font-medium text-stone-600">Card Number</label>
+                        <label className="text-sm font-medium text-stone-600">
+                          Card Number
+                        </label>
                         <div className="relative">
-                          <input type="text" placeholder="**** **** **** 4421" className="bg-[#F6F5F2] border-transparent focus:border-[#C49B89] focus:ring-1 focus:ring-[#C49B89] focus:bg-white rounded-xl pl-5 pr-12 py-3.5 outline-none transition-all text-stone-700 w-full font-mono tracking-wider" />
+                          <input
+                            type="text"
+                            placeholder="**** **** **** 4421"
+                            className="bg-[#F6F5F2] border-transparent focus:border-[#C49B89] focus:ring-1 focus:ring-[#C49B89] focus:bg-white rounded-xl pl-5 pr-12 py-3.5 outline-none transition-all text-stone-700 w-full font-mono tracking-wider"
+                          />
                         </div>
                       </div>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="flex flex-col gap-2">
-                          <label className="text-sm font-medium text-stone-600">Expiry Date</label>
-                          <input type="text" placeholder="MM / YY" className="bg-[#F6F5F2] border-transparent focus:border-[#C49B89] focus:ring-1 focus:ring-[#C49B89] focus:bg-white rounded-xl px-5 py-3.5 outline-none transition-all text-stone-700 font-mono tracking-widest uppercase" />
+                          <label className="text-sm font-medium text-stone-600">
+                            Expiry Date
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="MM / YY"
+                            className="bg-[#F6F5F2] border-transparent focus:border-[#C49B89] focus:ring-1 focus:ring-[#C49B89] focus:bg-white rounded-xl px-5 py-3.5 outline-none transition-all text-stone-700 font-mono tracking-widest uppercase"
+                          />
                         </div>
                         <div className="flex flex-col gap-2">
-                          <label className="text-sm font-medium text-stone-600">CVV</label>
-                          <input type="text" placeholder="***" className="bg-[#F6F5F2] border-transparent focus:border-[#C49B89] focus:ring-1 focus:ring-[#C49B89] focus:bg-white rounded-xl px-5 py-3.5 outline-none transition-all text-stone-700 font-mono tracking-widest" />
+                          <label className="text-sm font-medium text-stone-600">
+                            CVV
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="***"
+                            className="bg-[#F6F5F2] border-transparent focus:border-[#C49B89] focus:ring-1 focus:ring-[#C49B89] focus:bg-white rounded-xl px-5 py-3.5 outline-none transition-all text-stone-700 font-mono tracking-widest"
+                          />
                         </div>
                       </div>
                     </div>
                   )}
 
-                  {bookingData.payment_method === 'upi' && (
+                  {bookingData.payment_method === "upi" && (
                     <div className="animate-in fade-in flex flex-col gap-2">
-                      <label className="text-sm font-medium text-stone-600">UPI ID</label>
-                      <input type="text" placeholder="username@upi" className="bg-[#F6F5F2] border-transparent focus:border-[#C49B89] focus:ring-1 focus:ring-[#C49B89] focus:bg-white rounded-xl px-5 py-3.5 outline-none transition-all text-stone-700 w-full" />
+                      <label className="text-sm font-medium text-stone-600">
+                        UPI ID
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="username@upi"
+                        className="bg-[#F6F5F2] border-transparent focus:border-[#C49B89] focus:ring-1 focus:ring-[#C49B89] focus:bg-white rounded-xl px-5 py-3.5 outline-none transition-all text-stone-700 w-full"
+                      />
                     </div>
                   )}
 
-                  {bookingData.payment_method === 'wallet' && (
+                  {bookingData.payment_method === "wallet" && (
                     <div className="animate-in fade-in flex flex-col gap-2">
-                      <p className="text-stone-500 text-sm">You will be redirected to your wallet provider to complete the payment.</p>
+                      <p className="text-stone-500 text-sm">
+                        You will be redirected to your wallet provider to
+                        complete the payment.
+                      </p>
                     </div>
                   )}
-                  
-                  {bookingData.payment_method === 'cash' && (
+
+                  {bookingData.payment_method === "cash" && (
                     <div className="animate-in fade-in flex flex-col gap-2">
-                      <p className="text-stone-500 text-sm">You have chosen to pay at the salon. Please note that cancellations within 2 hours of the appointment may incur a fee.</p>
+                      <p className="text-stone-500 text-sm">
+                        You have chosen to pay at the salon. Please note that
+                        cancellations within 2 hours of the appointment may
+                        incur a fee.
+                      </p>
                     </div>
                   )}
                 </div>
               </section>
             )}
-
           </div>
 
           {/* Right Summary Sticky Panel */}
           <div className="bg-white border border-stone-100 shadow-[0_8px_30px_-6px_rgba(0,0,0,0.05)] rounded-[32px] overflow-hidden sticky top-8">
             <div className="w-full h-32 relative">
-              <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=2874&auto=format&fit=crop" className="w-full h-full object-cover" alt="Salon header" />
+              <img
+                src="https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=2874&auto=format&fit=crop"
+                className="w-full h-full object-cover"
+                alt="Salon header"
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
               <div className="absolute bottom-4 left-5 text-white">
-                <h3 className="font-serif text-xl font-medium mb-1">The Aurelia Atelier</h3>
-                <div className="text-white/80 text-xs flex items-center gap-1.5">Beverly Hills, CA</div>
+                <h3 className="font-serif text-xl font-medium mb-1">
+                  The Aurelia Atelier
+                </h3>
+                <div className="text-white/80 text-xs flex items-center gap-1.5">
+                  Beverly Hills, CA
+                </div>
               </div>
             </div>
 
@@ -505,30 +787,51 @@ export function CheckoutPage() {
               {bookingData.serviceName ? (
                 <div className="flex justify-between items-start">
                   <div>
-                    <h5 className="text-[11px] font-bold text-stone-400 tracking-[0.15em] uppercase mb-1.5">SERVICE</h5>
-                    <h4 className="text-stone-800 font-serif font-medium text-[16px] mb-1">{bookingData.serviceName}</h4>
-                    <p className="text-stone-500 text-xs">with {bookingData.stylist || 'Any Stylist'}</p>
+                    <h5 className="text-[11px] font-bold text-stone-400 tracking-[0.15em] uppercase mb-1.5">
+                      SERVICE
+                    </h5>
+                    <h4 className="text-stone-800 font-serif font-medium text-[16px] mb-1">
+                      {bookingData.serviceName}
+                    </h4>
+                    <p className="text-stone-500 text-xs">
+                      with {bookingData.stylist || "Any Stylist"}
+                    </p>
                   </div>
                 </div>
               ) : (
-                <div className="text-sm text-stone-400 italic">No service selected yet...</div>
+                <div className="text-sm text-stone-400 italic">
+                  No service selected yet...
+                </div>
               )}
 
               <div className="h-[1px] w-full bg-stone-100"></div>
 
               <div className="flex flex-col gap-4">
-                 <div className="flex gap-4">
-                   <div className="w-10 h-10 rounded-xl bg-stone-100 text-[#CA9A86] flex items-center justify-center shrink-0">
-                     <Calendar size={18} />
-                   </div>
-                   <div>
-                     <h5 className="text-[11px] text-stone-500 mb-0.5">Date & Time</h5>
-                     <p className="text-[14px] text-stone-800 font-medium">
-                       {bookingData.booking_date ? new Date(bookingData.booking_date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric'}) : 'Pending'} 
-                       {bookingData.booking_time ? ` • ${bookingData.booking_time}` : ''}
-                     </p>
-                   </div>
-                 </div>
+                <div className="flex gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-stone-100 text-[#CA9A86] flex items-center justify-center shrink-0">
+                    <Calendar size={18} />
+                  </div>
+                  <div>
+                    <h5 className="text-[11px] text-stone-500 mb-0.5">
+                      Date & Time
+                    </h5>
+                    <p className="text-[14px] text-stone-800 font-medium">
+                      {bookingData.booking_date
+                        ? new Date(bookingData.booking_date).toLocaleDateString(
+                            "en-US",
+                            {
+                              weekday: "short",
+                              month: "short",
+                              day: "numeric",
+                            },
+                          )
+                        : "Pending"}
+                      {bookingData.booking_time
+                        ? ` • ${bookingData.booking_time}`
+                        : ""}
+                    </p>
+                  </div>
+                </div>
               </div>
 
               {/* Price Breakdown container */}
@@ -549,12 +852,18 @@ export function CheckoutPage() {
 
               {step === 3 && (
                 <div className="flex flex-col items-center gap-4 mt-2">
-                  <button 
+                  <button
                     onClick={submitBooking}
                     disabled={isLoading}
                     className="w-full bg-[#CA9A86] hover:bg-[#B38775] text-white px-6 py-4 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
                   >
-                    {isLoading ? <Loader2 className="animate-spin" size={18} /> : <><Lock size={16} /> Confirm & Book</>}
+                    {isLoading ? (
+                      <Loader2 className="animate-spin" size={18} />
+                    ) : (
+                      <>
+                        <Lock size={16} /> Confirm & Book
+                      </>
+                    )}
                   </button>
                   <p className="flex items-center gap-1.5 text-[11px] text-stone-400 font-medium tracking-wide">
                     <CheckCircle2 size={12} /> Secure 256-bit encrypted booking
@@ -563,7 +872,6 @@ export function CheckoutPage() {
               )}
             </div>
           </div>
-
         </div>
       </main>
     </div>
