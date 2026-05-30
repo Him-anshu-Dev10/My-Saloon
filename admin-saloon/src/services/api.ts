@@ -113,6 +113,7 @@ export const api = {
     role: string;
     experience?: string;
     image_url?: string;
+    service_ids?: string[];
   }) => request("POST", "/admin/team", data),
   updateTeamMember: (
     id: string,
@@ -121,6 +122,7 @@ export const api = {
       role: string;
       experience?: string;
       image_url?: string;
+      service_ids?: string[];
     },
   ) => request("PUT", `/admin/team/${id}`, data),
   deleteTeamMember: (id: string) => request("DELETE", `/admin/team/${id}`),

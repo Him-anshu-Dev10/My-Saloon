@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom'
 
 const navItems = [
   { to: '/', label: 'Dashboard', icon: '/icons-high/dashboard.svg' },
+  { to: '/bookings/new', label: 'New Booking', icon: '/icons-high/plus.svg' },
   { to: '/bookings', label: 'Bookings', icon: '/icons-high/calendar.svg' },
   { to: '/services', label: 'Services', icon: '/icons-high/briefcase.svg' },
   { to: '/team', label: 'Team', icon: '/icons-high/users.svg' },
@@ -31,12 +32,7 @@ export default function Sidebar() {
           ))}
         </ul>
       </nav>
-      <NavLink to="/bookings" style={{ textDecoration: 'none' }}>
-        <button className="new-booking">
-          <img className="btn-icon" src="/icons-high/plus.svg" alt="" />
-          New Booking
-        </button>
-      </NavLink>
+      {/* New Booking moved into nav items */}
     </aside>
   )
 }

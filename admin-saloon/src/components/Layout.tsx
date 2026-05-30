@@ -14,10 +14,6 @@ export default function Layout({ children, user, onLogout }: Props) {
       <Sidebar />
       <div className="main">
         <header className="topbar">
-          <div className="search">
-            <img className="search-icon" src="/icons-high/search.svg" alt="" />
-            <input placeholder="Search bookings, clients, or services..." />
-          </div>
           <div className="profile">
             <span className="username">{user}</span>
             <button className="btn-ghost" onClick={onLogout}><img className="btn-icon" src="/icons-high/logout.svg" alt="" /></button>

@@ -34,10 +34,12 @@
 .sidebar ul { list-style:none; padding:0; margin:0 }
 .sidebar li { padding:12px 10px; border-radius:8px; color:var(--muted); display:flex; align-items:center; gap:10px }
 .sidebar li.active { background:#fbf6f4; color:var(--accent); font-weight:600 }
+.sidebar a.active li { background:#fbf6f4; color:var(--accent); font-weight:600 }
 .new-booking { margin-top:18px; background:var(--accent); color:white; border:none; padding:10px; border-radius:8px }
 
 .nav-dot { width:8px; height:8px; border-radius:50%; background:#e9e2df; display:inline-block }
 .sidebar li.active .nav-dot { background:var(--accent) }
+.sidebar a.active .nav-dot { background:var(--accent) }
 
 /* icons */
 .nav-icon, .btn-icon, .search-icon { width:18px; height:18px; color: #9b8f8a; display:inline-block; margin-right:10px }

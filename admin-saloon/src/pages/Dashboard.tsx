@@ -3,6 +3,7 @@ import Layout from '../components/Layout'
 import { api } from '../services/api'
 import './dashboard.css'
 import './pages.css'
+import Charts from '../components/Charts'
 
 type Props = {
   user: any
@@ -92,52 +93,12 @@ export default function Dashboard({ user, onLogout }: Props) {
         </div>
 
         <div className="main-grid">
-          <section className="card appointments-card">
+          <div className="card charts-full">
             <div className="card-title">
-              <span>Recent Appointments</span>
+              <span>Insights</span>
             </div>
-
-            <ul className="appointments">
-              {bookings.length === 0 ? (
-                <li style={{ padding: '20px', textAlign: 'center', color: '#888' }}>
-                  No appointments found.
-                </li>
-              ) : bookings.slice(0, 8).map((b) => (
-                <li key={b.id}>
-                  <div className="time">{b.appointment_time || b.booking_time}</div>
-                  <div className="info">
-                    <div className="client">{b.customer_name} ({b.customer_email})</div>
-                    <div className="meta">{b.service_name || b.hairstyle} &bull; Date: {new Date(b.appointment_date || b.booking_date).toLocaleDateString()}</div>
-                    <div style={{ marginTop: '8px', display: 'flex', gap: '8px', alignItems: 'center' }}>
-                      <strong style={{ fontSize: '13px' }}>Stylist:</strong>
-                      {b.stylist ? (
-                        <span className="badge confirmed">{b.stylist}</span>
-                      ) : (
-                        <span className="badge pending">Unassigned</span>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'flex-end' }}>
-                    <div className={"badge " + (b.booking_status === 'confirmed' ? 'confirmed' : b.booking_status === 'cancelled' ? 'cancelled' : b.booking_status === 'completed' ? 'completed' : 'pending')}>
-                      {b.booking_status}
-                    </div>
-                    {!b.stylist && (
-                      <div className="allocate-group">
-                        <input 
-                          type="text" 
-                          placeholder="Barber name" 
-                          value={allocationStylist[b.id] || ''}
-                          onChange={(e) => setAllocationStylist({...allocationStylist, [b.id]: e.target.value})}
-                        />
-                        <button onClick={() => handleAllocate(b.id)}>Allocate</button>
-                      </div>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </section>
+            <Charts stats={stats} bookings={bookings} />
+          </div>
         </div>
       </div>
     </Layout>

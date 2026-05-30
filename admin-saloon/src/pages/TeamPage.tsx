@@ -14,6 +14,7 @@ type TeamMember = {
   role: string;
   experience?: string;
   image_url?: string;
+  service_ids?: string[];
 };
 
 export default function TeamPage({ user, onLogout }: Props) {
@@ -26,7 +27,10 @@ export default function TeamPage({ user, onLogout }: Props) {
     role: "",
     experience: "",
     image_url: "",
+    service_ids: [] as string[],
   });
+
+  const [services, setServices] = useState<any[]>([]);
 
   const fetchTeam = async () => {
     try {
@@ -42,11 +46,20 @@ export default function TeamPage({ user, onLogout }: Props) {
 
   useEffect(() => {
     fetchTeam();
+    const fetchServices = async () => {
+      try {
+        const res = await api.getServices();
+        setServices(res.data || []);
+      } catch (err) {
+        console.error("Failed to fetch services", err);
+      }
+    };
+    fetchServices();
   }, []);
 
   const openCreate = () => {
     setEditingMember(null);
-    setForm({ name: "", role: "", experience: "", image_url: "" });
+    setForm({ name: "", role: "", experience: "", image_url: "", service_ids: [] });
     setShowModal(true);
   };
 
@@ -57,6 +70,7 @@ export default function TeamPage({ user, onLogout }: Props) {
       role: t.role,
       experience: t.experience || "",
       image_url: t.image_url || "",
+      service_ids: t.service_ids || [],
     });
     setShowModal(true);
   };
@@ -193,6 +207,26 @@ export default function TeamPage({ user, onLogout }: Props) {
                     }
                     placeholder="https://..."
                   />
+                </div>
+                <div className="form-group">
+                  <label>Services (select multiple)</label>
+                  <select
+                    multiple
+                    value={form.service_ids}
+                    onChange={(e) => {
+                      const opts = Array.from(e.target.selectedOptions).map(
+                        (o) => o.value,
+                      );
+                      setForm({ ...form, service_ids: opts });
+                    }}
+                    style={{ minHeight: 120 }}
+                  >
+                    {services.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div className="modal-actions">
                   <button

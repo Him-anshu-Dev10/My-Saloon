@@ -11,7 +11,7 @@
 .metric-card { transition: transform 0.12s ease, box-shadow 0.12s ease }
 .metric-card:hover { transform: translateY(-6px); box-shadow: 0 12px 30px rgba(16,24,40,0.06) }
 
-.main-grid { display:grid; grid-template-columns: 2fr 1fr; gap:20px }
+.main-grid { display:grid; grid-template-columns: 1fr; gap:20px }
 .card { background:var(--panel-bg); border:1px solid var(--border); border-radius:12px; padding:16px; box-shadow:0 4px 14px rgba(16,24,40,0.03) }
 .card-title { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; font-weight:600; color:#45322b }
 .view-all { font-size:13px; color:var(--muted); text-decoration:none }
@@ -45,6 +45,24 @@
 
 .gallery .thumbs { display:flex; gap:8px }
 .gallery .thumb { background:linear-gradient(180deg,#f6f1ee,#efe7e3); width:72px; height:56px; border-radius:8px; border:1px solid var(--border) }
+
+/* Charts */
+.charts-grid { display:flex; flex-direction:row; gap:12px; align-items:flex-start; flex-wrap:nowrap }
+.chart-card { padding:10px; border-radius:8px; background:var(--bg); border:1px solid var(--border); display:flex; flex-direction:column; gap:8px; flex:1 1 48%; max-width:48% }
+.charts-card { display:flex; flex-direction:column; gap:12px }
+.charts-full { padding:12px; }
+
+/* Make chart canvases compact to avoid page scroll */
+.chart-card canvas { width: 100% !important; height: 160px !important; }
+.chart-card .card-title { margin-bottom: 6px }
+
+/* Prevent dashboard root from creating page-level vertical scroll */
+.dashboard-root { overflow: hidden }
+.card .card-title { font-size:14px; font-weight:600; color:#45322b; margin-bottom:8px }
+
+@media (min-width: 900px) {
+  .charts-grid { grid-template-columns: 1fr }
+}
 
 @media (max-width: 900px) {
   .metrics-grid { grid-template-columns:repeat(2,1fr) }
