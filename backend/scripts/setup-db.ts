@@ -89,19 +89,40 @@ async function setupDatabase() {
     let salonId: string | null = null;
     if (parseInt(salonCountRes.rows[0].count) === 0) {
       console.log('[setup-db]: Database has no salons. Seeding initial salon...');
-      const insertSalonRes = await client.query(`
-        INSERT INTO public.salons (name, image, rating, city, starting_price, latitude, longitude)
-        VALUES (
-          'Glowup Signature Salon',
-          'https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=800&auto=format&fit=crop',
-          5.0,
-          'New York',
-          150,
-          40.7128,
-          -74.0060
-        ) RETURNING id;
-      `);
-      salonId = insertSalonRes.rows[0].id;
+      const seedSalons = [
+        ['Glowup Chandigarh 1', 'Chandigarh', 30.7333, 76.7794, 180],
+        ['Glowup Chandigarh 2', 'Chandigarh', 30.7415, 76.7821, 220],
+        ['Glowup Chandigarh 3', 'Chandigarh', 30.7218, 76.7684, 160],
+        ['Glowup Chandigarh 4', 'Chandigarh', 30.7540, 76.7845, 240],
+        ['Glowup Chandigarh 5', 'Chandigarh', 30.7055, 76.8012, 200],
+        ['Glowup Noida 1', 'Noida', 28.5355, 77.3910, 175],
+        ['Glowup Noida 2', 'Noida', 28.5222, 77.3821, 210],
+        ['Glowup Noida 3', 'Noida', 28.5708, 77.3260, 190],
+        ['Glowup Noida 4', 'Noida', 28.6129, 77.3710, 230],
+        ['Glowup Noida 5', 'Noida', 28.4960, 77.4101, 205],
+      ] as const;
+
+      for (const [name, city, latitude, longitude, startingPrice] of seedSalons) {
+        const insertSalonRes = await client.query(
+          `
+            INSERT INTO public.salons (name, image, rating, city, starting_price, latitude, longitude)
+            VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id;
+          `,
+          [
+            name,
+            'https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=800&auto=format&fit=crop',
+            4.8,
+            city,
+            startingPrice,
+            latitude,
+            longitude,
+          ],
+        );
+
+        if (!salonId) {
+          salonId = insertSalonRes.rows[0].id;
+        }
+      }
 
       // Seed initial services
       console.log('[setup-db]: Seeding services for initial salon...');

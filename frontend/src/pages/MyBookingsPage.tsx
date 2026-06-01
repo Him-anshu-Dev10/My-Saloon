@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Calendar, Scissors, User, CreditCard, ChevronRight, XCircle, ArrowLeft, Loader2, RefreshCw } from "lucide-react";
+import { formatINR } from "../utils/currency";
 
 export function MyBookingsPage() {
   const navigate = useNavigate();
@@ -154,7 +155,7 @@ export function MyBookingsPage() {
                         <span className={`px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${isCancelled ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'}`}>
                           {booking.booking_status}
                         </span>
-                        <span className="font-bold text-lg text-stone-800">${Number(booking.total_price).toFixed(2)}</span>
+                        <span className="font-bold text-lg text-stone-800">{formatINR(booking.total_price)}</span>
                       </div>
 
                       <div className="text-sm text-stone-500 flex items-center gap-1.5 md:justify-end">

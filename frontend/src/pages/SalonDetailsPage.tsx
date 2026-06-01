@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { formatINR } from "../utils/currency";
 
 export function SalonDetailsPage() {
   const navigate = useNavigate();
@@ -312,7 +313,7 @@ export function SalonDetailsPage() {
                             pampering session.
                           </p>
                           <p className="text-[#C49B89] font-semibold text-lg">
-                            ${service.price}
+                             {formatINR(service.price)}
                           </p>
                         </div>
                         <button
@@ -354,7 +355,7 @@ export function SalonDetailsPage() {
                     </p>
                   </div>
                   <span className="text-stone-600 font-semibold text-sm">
-                    ${s.price}
+                      {formatINR(s.price)}
                   </span>
                 </div>
               ))}
@@ -370,18 +371,18 @@ export function SalonDetailsPage() {
             <div className="flex flex-col gap-3 mb-6 pt-3 border-t border-stone-100">
               <div className="flex justify-between items-center text-[15px] text-stone-500">
                 <span>Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
+                <span>{formatINR(subtotal)}</span>
               </div>
               <div className="flex justify-between items-center text-[15px] text-stone-500">
                 <span>Tax (8%)</span>
-                <span>${tax.toFixed(2)}</span>
+                <span>{formatINR(tax)}</span>
               </div>
             </div>
 
             {/* Total */}
             <div className="flex justify-between items-center text-lg font-medium text-stone-800 mb-8 pt-4 border-t border-stone-100">
               <span>Total</span>
-              <span>${total.toFixed(2)}</span>
+              <span>{formatINR(total)}</span>
             </div>
 
             <button

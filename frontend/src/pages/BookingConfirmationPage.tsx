@@ -1,6 +1,7 @@
 import { CheckCircle, ArrowRight, Calendar, Scissors } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { formatINR } from "../utils/currency";
 
 export function BookingConfirmationPage() {
   const { id } = useParams();
@@ -92,7 +93,7 @@ export function BookingConfirmationPage() {
             </div>
             <div className="text-right">
               <p className="text-xs text-stone-500 font-medium">Total Paid</p>
-              <p className="text-lg font-bold text-[#CA9A86]">${Number(booking.total_price).toFixed(2)}</p>
+              <p className="text-lg font-bold text-[#CA9A86]">{formatINR(booking.total_price)}</p>
             </div>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Star } from "lucide-react";
+import { formatINR } from "../utils/currency";
 
 type Service = {
   id: string;
@@ -92,7 +93,7 @@ const TreatmentsPage: React.FC<{ latitude?: number | null; longitude?: number | 
                           <div className="text-xs text-stone-400">{s.duration}</div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <div className="font-semibold">${s.price}</div>
+                          <div className="font-semibold">{formatINR(s.price)}</div>
                           <button
                             onClick={() => navigate(`/salon/${salon.id}`)}
                             className="bg-[#6B554D] hover:bg-[#5C4841] text-white px-3 py-1 rounded-md text-sm"

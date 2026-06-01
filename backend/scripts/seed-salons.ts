@@ -20,9 +20,16 @@ async function seed() {
     await query(
       `INSERT INTO salons (name, city, latitude, longitude, image, rating, starting_price)
        VALUES
-        ('Glowup London', 'London', 51.5074, -0.1278, 'https://via.placeholder.com/300x200', 4.7, 45.0),
-        ('Shoreditch Styles', 'London', 51.5260, -0.0800, 'https://via.placeholder.com/300x200', 4.5, 30.0),
-        ('Camden Cuts', 'London', 51.5390, -0.1430, 'https://via.placeholder.com/300x200', 4.3, 25.0);
+        ('Glowup Chandigarh 1', 'Chandigarh', 30.7333, 76.7794, 'https://via.placeholder.com/300x200', 4.8, 180.0),
+        ('Glowup Chandigarh 2', 'Chandigarh', 30.7415, 76.7821, 'https://via.placeholder.com/300x200', 4.7, 220.0),
+        ('Glowup Chandigarh 3', 'Chandigarh', 30.7218, 76.7684, 'https://via.placeholder.com/300x200', 4.6, 160.0),
+        ('Glowup Chandigarh 4', 'Chandigarh', 30.7540, 76.7845, 'https://via.placeholder.com/300x200', 4.8, 240.0),
+        ('Glowup Chandigarh 5', 'Chandigarh', 30.7055, 76.8012, 'https://via.placeholder.com/300x200', 4.5, 200.0),
+        ('Glowup Noida 1', 'Noida', 28.5355, 77.3910, 'https://via.placeholder.com/300x200', 4.8, 175.0),
+        ('Glowup Noida 2', 'Noida', 28.5222, 77.3821, 'https://via.placeholder.com/300x200', 4.7, 210.0),
+        ('Glowup Noida 3', 'Noida', 28.5708, 77.3260, 'https://via.placeholder.com/300x200', 4.6, 190.0),
+        ('Glowup Noida 4', 'Noida', 28.6129, 77.3710, 'https://via.placeholder.com/300x200', 4.8, 230.0),
+        ('Glowup Noida 5', 'Noida', 28.4960, 77.4101, 'https://via.placeholder.com/300x200', 4.5, 205.0);
       `
     );
 

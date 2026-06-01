@@ -12,6 +12,7 @@ import {
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { CountryCodeSelector } from "../components/CountryCodeSelector";
+import { formatINR } from "../utils/currency";
 
 export function CheckoutPage() {
   const navigate = useNavigate();
@@ -385,8 +386,8 @@ export function CheckoutPage() {
                             </h4>
                             <div className="flex justify-between items-center text-xs text-stone-500">
                               <span>{hs.duration}</span>
-                              <span className="font-semibold text-[#CA9A86]">
-                                ${hs.price}
+                               <span className="font-semibold text-[#CA9A86]">
+                                 {formatINR(hs.price)}
                               </span>
                             </div>
                           </div>
@@ -838,15 +839,15 @@ export function CheckoutPage() {
               <div className="border border-stone-100 bg-[#FCFBFB] rounded-[24px] p-6 mt-2 flex flex-col gap-3">
                 <div className="flex justify-between items-center text-[13px] text-stone-500">
                   <span>Base Price</span>
-                  <span>${bookingData.total_price.toFixed(2)}</span>
+                  <span>{formatINR(bookingData.total_price)}</span>
                 </div>
                 <div className="flex justify-between items-center text-[13px] text-stone-500">
                   <span>Taxes (8%)</span>
-                  <span>${tax.toFixed(2)}</span>
+                  <span>{formatINR(tax)}</span>
                 </div>
                 <div className="flex justify-between items-center text-[18px] font-medium text-stone-800 border-t border-stone-200 border-dashed pt-3 mt-1">
                   <span>Final Amount</span>
-                  <span>${finalAmount.toFixed(2)}</span>
+                  <span>{formatINR(finalAmount)}</span>
                 </div>
               </div>
 
