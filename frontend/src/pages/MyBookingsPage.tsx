@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+<<<<<<< HEAD
 import {
   Calendar,
   Scissors,
@@ -12,6 +13,10 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { PopupDialog } from "../components/PopupDialog";
+=======
+import { Calendar, Scissors, User, CreditCard, ChevronRight, XCircle, ArrowLeft, Loader2, RefreshCw } from "lucide-react";
+import { formatINR } from "../utils/currency";
+>>>>>>> 300454248344c82598174d6c64d3d76e1e2f9d38
 
 export function MyBookingsPage() {
   const navigate = useNavigate();
@@ -244,9 +249,13 @@ export function MyBookingsPage() {
                         >
                           {booking.booking_status}
                         </span>
+<<<<<<< HEAD
                         <span className="font-bold text-lg text-stone-800">
                           ${Number(booking.total_price).toFixed(2)}
                         </span>
+=======
+                        <span className="font-bold text-lg text-stone-800">{formatINR(booking.total_price)}</span>
+>>>>>>> 300454248344c82598174d6c64d3d76e1e2f9d38
                       </div>
 
                       <div className="text-sm text-stone-500 flex items-center gap-1.5 md:justify-end">
