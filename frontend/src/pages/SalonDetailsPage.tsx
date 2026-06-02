@@ -207,52 +207,6 @@ export function SalonDetailsPage() {
         </div>
       )}
 
-      {/* Detail View Navbar */}
-      <nav className="flex items-center justify-between px-8 py-5 mx-auto max-w-6xl">
-        <button
-          onClick={() => navigate("/")}
-          className="text-2xl font-semibold font-serif text-[#C49B89] hover:text-[#b08774] transition-colors cursor-pointer"
-        >
-          Glowup
-        </button>
-
-        <div className="hidden md:flex items-center space-x-8 text-sm tracking-wide font-medium text-stone-500">
-          <button
-            onClick={() => navigate("/")}
-            className="hover:text-stone-900 transition-colors cursor-pointer"
-          >
-            Discover
-          </button>
-          <button
-            onClick={() => navigate("/about")}
-            className="hover:text-stone-900 transition-colors cursor-pointer"
-          >
-            About Glowup
-          </button>
-          <button
-            onClick={() => navigate("/memberships")}
-            className="hover:text-stone-900 transition-colors cursor-pointer"
-          >
-            Memberships
-          </button>
-          <button
-            onClick={() => navigate("/concierge")}
-            className="hover:text-stone-900 transition-colors cursor-pointer"
-          >
-            Concierge
-          </button>
-        </div>
-
-        <div className="flex items-center space-x-4">
-          <button className="text-stone-600 hover:text-stone-900 transition-colors p-2 cursor-pointer">
-            <Heart size={20} />
-          </button>
-          <button className="text-stone-600 hover:text-stone-900 transition-colors p-2 cursor-pointer">
-            <Share2 size={20} />
-          </button>
-        </div>
-      </nav>
-
       <main className="max-w-6xl mx-auto px-8 pb-32">
         {/* Header Hero Image */}
         <div className="relative w-full h-[380px] rounded-[32px] overflow-hidden mb-10 shadow-md">

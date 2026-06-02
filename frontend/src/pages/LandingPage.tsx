@@ -209,23 +209,13 @@ export function LandingPage({
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                 You're all set
               </div>
-              <h1 className="text-[3.2rem] leading-[1.1] font-serif mb-4 text-stone-900">
-                Welcome, {userName}! 🎉
+              <h1 className="text-[2.7rem] md:text-[3rem] leading-[1.1] font-serif mb-4 text-stone-900">
+                Welcome, {userName}!
               </h1>
               <p className="text-stone-500 text-lg mb-10 max-w-[420px] leading-relaxed">
                 Great to see you again! Explore top-rated salons near you and
                 book your next pampering session instantly.
               </p>
-              <button
-                onClick={() => {
-                  const section = document.querySelector("#results-section");
-                  section?.scrollIntoView({ behavior: "smooth" });
-                }}
-                className="flex items-center mb-4 gap-2 bg-[#6B554D] hover:bg-[#5C4841] text-white px-8 py-4 rounded-xl font-medium transition-all hover:shadow-xl hover:shadow-[#6B554D]/20 text-base cursor-pointer"
-              >
-                <Calendar size={18} />
-                Book Your Next Session
-              </button>
             </>
           ) : (
             <>
