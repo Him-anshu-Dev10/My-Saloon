@@ -141,9 +141,13 @@ function AppRoutes() {
           element={
             <LandingPageWrapper
               location={location}
-              setLocation={setLocation}
+              setLocation={(loc) => {
+                setLocation(loc);
+                setLatitude(null);
+                setLongitude(null);
+              }}
               isLoadingLocation={isLoadingLocation}
-              onUseMyLocation={handleUseMyLocation}
+              onUseMyLocation={() => handleUseMyLocation(false)}
               onSearch={handleSearchSalons}
               latitude={latitude}
               longitude={longitude}

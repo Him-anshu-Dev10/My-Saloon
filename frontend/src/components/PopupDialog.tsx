@@ -47,45 +47,41 @@ export function PopupDialog({
   const styles = toneStyles[tone];
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-stone-950/55 px-4 py-6 backdrop-blur-sm">
+    <div className="fixed top-6 left-1/2 z-[80] flex w-full max-w-sm -translate-x-1/2 flex-col px-4 sm:px-0">
       <div
-        className={`w-full max-w-md rounded-[28px] bg-white p-7 shadow-2xl ring-1 ${styles.ring}`}
+        className={`w-full overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ${styles.ring} animate-in fade-in slide-in-from-top-4 duration-300`}
       >
-        <div className="mb-5 flex items-start gap-4">
+        <div className="flex items-start gap-4 p-5">
           <div
-            className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${styles.accent} text-white shadow-lg`}
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${styles.accent} text-white shadow-md`}
           >
-            <span className="text-lg font-semibold">!</span>
+            <span className="text-base font-bold">!</span>
           </div>
-          <div className="flex-1">
-            <div
-              className={`mb-2 inline-flex rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] ${styles.badge}`}
-            >
-              {tone}
-            </div>
-            <h3 className="font-serif text-2xl text-stone-900">{title}</h3>
+          <div className="flex-1 pt-1">
+            <h3 className="text-base font-semibold text-stone-900">{title}</h3>
+            <p className="mt-1 text-sm leading-relaxed text-stone-600">{message}</p>
+            
+            {(onCancel || onConfirm) && (
+              <div className="mt-4 flex gap-3">
+                {onCancel && (
+                  <button
+                    onClick={onCancel}
+                    className="rounded-lg border border-stone-200 px-4 py-2 text-xs font-medium text-stone-600 transition-colors hover:bg-stone-50"
+                  >
+                    {cancelLabel}
+                  </button>
+                )}
+                {onConfirm && (
+                  <button
+                    onClick={onConfirm}
+                    className="rounded-lg bg-[#6B554D] px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-[#5C4841]"
+                  >
+                    {confirmLabel}
+                  </button>
+                )}
+              </div>
+            )}
           </div>
-        </div>
-
-        <p className="text-sm leading-6 text-stone-600">{message}</p>
-
-        <div className="mt-7 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-          {onCancel && (
-            <button
-              onClick={onCancel}
-              className="rounded-xl border border-stone-200 bg-white px-5 py-3 text-sm font-medium text-stone-600 transition-colors hover:bg-stone-50"
-            >
-              {cancelLabel}
-            </button>
-          )}
-          {onConfirm && (
-            <button
-              onClick={onConfirm}
-              className="rounded-xl bg-[#6B554D] px-5 py-3 text-sm font-medium text-white transition-colors hover:bg-[#5C4841]"
-            >
-              {confirmLabel}
-            </button>
-          )}
         </div>
       </div>
     </div>

@@ -88,6 +88,8 @@ export function LandingPage({
   const hasAreaSearch =
     typeof latitude === "number" && typeof longitude === "number";
 
+  const [isFetching, setIsFetching] = useState(false);
+
   // Search & Filter States
   const [searchName, setSearchName] = useState("");
   const [searchCity, setSearchCity] = useState("");
@@ -113,6 +115,7 @@ export function LandingPage({
   // Fetch salons dynamically with applied filters
   useEffect(() => {
     const fetchSalons = async () => {
+      setIsFetching(true);
       try {
         const base =
           import.meta.env.VITE_BACKEND_URL || "http://localhost:3000/api/v1";
@@ -136,6 +139,10 @@ export function LandingPage({
         if (filterMaxPrice) params.append("maxPrice", String(filterMaxPrice));
 
         const res = await fetch(`${base}/salons?${params.toString()}`);
+        if (!res.ok) {
+          setSalons([]);
+          return;
+        }
         const body = await res.json();
         if (body && body.success) {
           const fetchedSalons = body.data || [];
@@ -148,13 +155,22 @@ export function LandingPage({
               Number(fetchedSalons[0].longitude),
             ]);
           }
+        } else {
+          setSalons([]);
         }
       } catch (err) {
         console.error("Failed to fetch salons:", err);
+        setSalons([]);
+      } finally {
+        setIsFetching(false);
       }
     };
 
-    fetchSalons();
+    const timeoutId = setTimeout(() => {
+      fetchSalons();
+    }, 400);
+
+    return () => clearTimeout(timeoutId);
   }, [
     location,
     latitude,
@@ -234,7 +250,8 @@ export function LandingPage({
           {/* Search/Location Form */}
           <div className="flex flex-col sm:flex-row gap-4 mb-12">
             <button
-              onClick={onUseMyLocation}
+              type="button"
+              onClick={() => onUseMyLocation()}
               disabled={isLoadingLocation}
               className="flex items-center justify-center gap-2 bg-[#6B554D] hover:bg-[#5C4841] text-white px-6 py-3.5 rounded-lg font-medium transition-colors w-full sm:w-auto shrink-0 shadow-sm disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
             >
@@ -387,12 +404,18 @@ export function LandingPage({
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-8 items-start">
           {/* Left Column: Salon List */}
           <div className="flex flex-col gap-5 lg:max-h-[800px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-stone-200 scrollbar-track-transparent">
-            {salons.length === 0 ? (
+            {isFetching ? (
               <div className="bg-white rounded-2xl p-12 border border-stone-100 text-center text-stone-500 shadow-sm">
                 <Loader2
                   size={32}
                   className="mx-auto text-[#C49B89] animate-spin mb-3"
                 />
+                <h3 className="font-serif text-lg font-medium text-stone-700 mb-1">
+                  Loading Salons...
+                </h3>
+              </div>
+            ) : salons.length === 0 ? (
+              <div className="bg-white rounded-2xl p-12 border border-stone-100 text-center text-stone-500 shadow-sm">
                 <h3 className="font-serif text-lg font-medium text-stone-700 mb-1">
                   {hasAreaSearch
                     ? "No salons in your area affiliated with us"
