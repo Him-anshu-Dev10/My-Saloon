@@ -249,15 +249,11 @@ export function LandingPage({
               onSubmit={handleSearchSubmit}
               className="w-full max-w-[420px]"
             >
-              {location && !isLoadingLocation && (
-                <div className="mb-2 flex items-center gap-2 text-sm text-stone-500">
-                  <MapPin size={14} className="text-stone-400" />
-                  <span className="truncate">Detected: {location}</span>
-                  <span className="ml-1 text-xs text-stone-400">
-                    Auto-detected on first visit, editable anytime.
-                  </span>
-                </div>
-              )}
+              <div className="h-[10px]">
+                {location && !isLoadingLocation && (
+                  <div className="mb-2 flex items-center gap-2 text-sm text-stone-500 animate-in fade-in duration-300"></div>
+                )}
+              </div>
               <div className="flex flex-col sm:flex-row gap-3">
                 <div className="relative flex-1">
                   <input
@@ -390,7 +386,7 @@ export function LandingPage({
         {/* Live Map Split View */}
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-8 items-start">
           {/* Left Column: Salon List */}
-          <div className="flex flex-col gap-5 max-h-[700px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-stone-200 scrollbar-track-transparent">
+          <div className="flex flex-col gap-5 lg:max-h-[800px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-stone-200 scrollbar-track-transparent">
             {salons.length === 0 ? (
               <div className="bg-white rounded-2xl p-12 border border-stone-100 text-center text-stone-500 shadow-sm">
                 <Loader2

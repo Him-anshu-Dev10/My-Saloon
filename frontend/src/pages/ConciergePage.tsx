@@ -29,7 +29,7 @@ const ConciergePage: React.FC = () => {
       title: "Request received",
       message: `Thanks ${name || "there"}! Your concierge request has been received. We'll contact you at ${contact || "your contact"}.`,
       tone: "success",
-      onConfirm: () => navigate(-1),
+      onConfirm: () => navigate("/memberships"),
     });
   };
 

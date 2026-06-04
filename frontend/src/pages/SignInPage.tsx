@@ -13,7 +13,6 @@ const SignInPage: React.FC = () => {
   const [step, setStep] = useState(1);
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
-  const [otpError, setOtpError] = useState("");
   const [loading, setLoading] = useState(false);
   const [popup, setPopup] = useState<{
     open: boolean;
@@ -46,7 +45,6 @@ const SignInPage: React.FC = () => {
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setOtpError("");
 
     try {
       const res = await fetch("http://localhost:3000/api/v1/auth/send-otp", {
@@ -71,10 +69,20 @@ const SignInPage: React.FC = () => {
           tone: "success",
         });
       } else {
-        setOtpError(data.message || "Failed to send OTP");
+        setPopup({
+          open: true,
+          title: "Failed to send OTP",
+          message: data.message || "Please try again later.",
+          tone: "error",
+        });
       }
     } catch (err) {
-      setOtpError("Network error");
+      setPopup({
+        open: true,
+        title: "Network error",
+        message: "Please check your connection and try again.",
+        tone: "error",
+      });
     } finally {
       setLoading(false);
     }
@@ -84,7 +92,6 @@ const SignInPage: React.FC = () => {
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setOtpError("");
 
     try {
       const res = await fetch("http://localhost:3000/api/v1/auth/verify-otp", {
@@ -114,10 +121,22 @@ const SignInPage: React.FC = () => {
           onConfirm: () => navigate("/"),
         });
       } else {
-        setOtpError(data.message || "Invalid OTP");
+        setPopup({
+          open: true,
+          title: "Invalid OTP",
+          message:
+            data.message ||
+            "The code you entered is incorrect. Please try again.",
+          tone: "error",
+        });
       }
     } catch (err) {
-      setOtpError("Network error");
+      setPopup({
+        open: true,
+        title: "Network error",
+        message: "Please check your connection and try again.",
+        tone: "error",
+      });
     } finally {
       setLoading(false);
     }
@@ -221,9 +240,6 @@ const SignInPage: React.FC = () => {
               >
                 {loading ? "Sending..." : "Send OTP"}
               </button>
-              {otpError && (
-                <div className="text-red-500 text-sm">{otpError}</div>
-              )}
             </>
           )}
 
@@ -246,9 +262,6 @@ const SignInPage: React.FC = () => {
               >
                 {loading ? "Verifying..." : "Verify OTP"}
               </button>
-              {otpError && (
-                <div className="text-red-500 text-sm">{otpError}</div>
-              )}
             </>
           )}
         </form>
