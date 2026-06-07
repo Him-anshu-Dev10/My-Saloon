@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Star } from "lucide-react";
 import { formatINR } from "../utils/currency";
+import { API_BASE_URL } from "../services/apiBase";
 
 type Service = {
   id: string;
@@ -26,7 +27,7 @@ const TreatmentsPage: React.FC<{ latitude?: number | null; longitude?: number | 
   useEffect(() => {
     const fetchSalons = async () => {
       try {
-        const base = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000/api/v1";
+        const base = API_BASE_URL;
         let url = `${base}/salons`;
         if (typeof latitude === "number" && typeof longitude === "number") {
           url = `${base}/salons?lat=${latitude}&lon=${longitude}&radius=10`;

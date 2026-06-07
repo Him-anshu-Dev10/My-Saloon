@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import signImage from "../assets/admin.png";
 import { PopupDialog } from "../components/PopupDialog";
+import { API_BASE_URL } from "../services/apiBase";
 
 const SignInPage: React.FC = () => {
   const [form, setForm] = useState({
@@ -47,7 +48,7 @@ const SignInPage: React.FC = () => {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:3000/api/v1/auth/send-otp", {
+      const res = await fetch(`${API_BASE_URL}/auth/send-otp`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -94,7 +95,7 @@ const SignInPage: React.FC = () => {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:3000/api/v1/auth/verify-otp", {
+      const res = await fetch(`${API_BASE_URL}/auth/verify-otp`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

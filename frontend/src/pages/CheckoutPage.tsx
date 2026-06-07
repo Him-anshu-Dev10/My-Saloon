@@ -16,11 +16,11 @@ import { CountryCodeSelector } from "../components/CountryCodeSelector";
 import { PopupDialog } from "../components/PopupDialog";
 
 import { formatINR } from "../utils/currency";
+import { API_BASE_URL } from "../services/apiBase";
 
 export function CheckoutPage() {
   const navigate = useNavigate();
-  const base =
-    import.meta.env.VITE_BACKEND_URL || "http://localhost:3000/api/v1";
+  const base = API_BASE_URL;
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [availableSlots, setAvailableSlots] = useState<string[]>([]);

@@ -2,6 +2,7 @@ import { CheckCircle, ArrowRight, Calendar, Scissors } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { formatINR } from "../utils/currency";
+import { API_BASE_URL } from "../services/apiBase";
 
 export function BookingConfirmationPage() {
   const { id } = useParams();
@@ -18,7 +19,7 @@ export function BookingConfirmationPage() {
   useEffect(() => {
     const fetchBooking = async () => {
       try {
-        const res = await fetch(`http://localhost:3000/api/v1/bookings/${id}`);
+        const res = await fetch(`${API_BASE_URL}/bookings/${id}`);
         const data = await res.json();
         if (data.success) {
           setBooking(data.data);

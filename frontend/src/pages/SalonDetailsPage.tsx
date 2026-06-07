@@ -9,6 +9,7 @@ import {
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PopupDialog } from "../components/PopupDialog";
+import { API_BASE_URL } from "../services/apiBase";
 
 import { formatINR } from "../utils/currency";
 
@@ -38,9 +39,7 @@ export function SalonDetailsPage() {
   useEffect(() => {
     const fetchSalonDetails = async () => {
       try {
-        const base =
-          import.meta.env.VITE_BACKEND_URL || "http://localhost:3000/api/v1";
-        const res = await fetch(`${base}/salons/${id}`);
+        const res = await fetch(`${API_BASE_URL}/salons/${id}`);
         const body = await res.json();
         if (body && body.success) {
           const fetchedSalon = body.data;
@@ -50,7 +49,9 @@ export function SalonDetailsPage() {
             : [];
 
           if (id) {
-            const servicesRes = await fetch(`${base}/services?salon_id=${id}`);
+            const servicesRes = await fetch(
+              `${API_BASE_URL}/services?salon_id=${id}`,
+            );
             if (servicesRes.ok) {
               const servicesBody = await servicesRes.json();
               if (servicesBody && servicesBody.success) {

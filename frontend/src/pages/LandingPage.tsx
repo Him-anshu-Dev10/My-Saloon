@@ -17,6 +17,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { formatINR } from "../utils/currency";
+import { API_BASE_URL } from "../services/apiBase";
 
 interface LandingPageProps {
   location: string;
@@ -116,8 +117,6 @@ export function LandingPage({
     const fetchSalons = async () => {
       setIsFetching(true);
       try {
-        const base =
-          import.meta.env.VITE_BACKEND_URL || "http://localhost:3000/api/v1";
         const params = new URLSearchParams();
 
         if (typeof latitude === "number" && typeof longitude === "number") {
@@ -137,7 +136,7 @@ export function LandingPage({
         if (filterService) params.append("service", filterService);
         if (filterMaxPrice) params.append("maxPrice", String(filterMaxPrice));
 
-        const res = await fetch(`${base}/salons?${params.toString()}`);
+        const res = await fetch(`${API_BASE_URL}/salons?${params.toString()}`);
         if (!res.ok) {
           setSalons([]);
           return;

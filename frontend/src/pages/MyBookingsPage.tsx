@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { PopupDialog } from "../components/PopupDialog";
 import { formatINR } from "../utils/currency";
+import { API_BASE_URL } from "../services/apiBase";
 
 export function MyBookingsPage() {
   const navigate = useNavigate();
@@ -52,9 +53,7 @@ export function MyBookingsPage() {
     }
     setLoading(true);
     try {
-      const res = await fetch(
-        `http://localhost:3000/api/v1/bookings/user/${userEmail}`,
-      );
+      const res = await fetch(`${API_BASE_URL}/bookings/user/${userEmail}`);
       const data = await res.json();
       if (data.success) {
         setBookings(data.data);
@@ -87,12 +86,9 @@ export function MyBookingsPage() {
         setPopup((prev) => ({ ...prev, open: false }));
         setCancellingId(id);
         try {
-          const res = await fetch(
-            `http://localhost:3000/api/v1/bookings/${id}/cancel`,
-            {
-              method: "PATCH",
-            },
-          );
+          const res = await fetch(`${API_BASE_URL}/bookings/${id}/cancel`, {
+            method: "PATCH",
+          });
           const data = await res.json();
           if (data.success) {
             await fetchBookings();
