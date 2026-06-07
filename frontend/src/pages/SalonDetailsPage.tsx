@@ -1,6 +1,4 @@
 import {
-  Heart,
-  Share2,
   Star,
   Clock,
   Plus,
