@@ -18,6 +18,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { formatINR } from "../utils/currency";
 import { API_BASE_URL } from "../services/apiBase";
+import adminBackground from "../assets/admin.png";
 
 interface LandingPageProps {
   location: string;
@@ -207,13 +208,13 @@ export function LandingPage({
       {/* Hero Section */}
       <main className="relative max-w-7xl mx-auto px-8 pt-16 pb-24 flex h-[620px] items-center">
         {/* Background Image/Overlay */}
-        <div className="absolute top-0 right-0 w-[55%] h-full -z-10 rounded-[40px] overflow-hidden opacity-90 blur-[0.5px]">
+        <div className="absolute top-0 right-0 w-[55%] h-full -z-10 rounded-[40px] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.08)]">
           <img
-            src="https://images.unsplash.com/photo-1522337660859-02fbefca4702?q=80&w=2938&auto=format&fit=crop"
+            src={adminBackground}
             alt="Salon background"
-            className="w-full h-full object-cover object-center opacity-40 mix-blend-multiply filter blur-[2.5px]"
+            className="w-full h-full object-cover object-center opacity-85 blur-[1px]"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#FDFBF9] via-[#FDFBF9]/80 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-[#FDFBF9]/20 via-[#FDFBF9]/10 to-transparent"></div>
         </div>
 
         <div className="max-w-2xl">
