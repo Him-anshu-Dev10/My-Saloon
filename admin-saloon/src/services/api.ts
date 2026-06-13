@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000/api/v1";
+const API_URL = (import.meta.env.VITE_API_URL as string) || "http://localhost:3000/api/v1";
 
 function getToken(): string | null {
   return localStorage.getItem("admin_token");
