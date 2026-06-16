@@ -1,9 +1,23 @@
 import app from './app';
 import { env } from './config/env';
+import { ensureSalonsSchema } from './config/salonSchema';
 
-const server = app.listen(env.PORT, () => {
-    console.log(`[server]: Server is running at http://localhost:${env.PORT} in ${env.NODE_ENV} mode`);
-});
+async function startServer() {
+    try {
+        await ensureSalonsSchema();
+    } catch (err: any) {
+        console.error('[db]: Failed to ensure salons schema:', err?.message || err);
+        process.exit(1);
+    }
+
+    const server = app.listen(env.PORT, () => {
+        console.log(`[server]: Server is running at http://localhost:${env.PORT} in ${env.NODE_ENV} mode`);
+    });
+
+    return server;
+}
+
+const serverPromise = startServer();
 
 // Handle Uncaught Exceptions (Synchronous programming errors)
 process.on('uncaughtException', (err) => {
@@ -16,15 +30,19 @@ process.on('uncaughtException', (err) => {
 process.on('unhandledRejection', (err: Error) => {
     console.error('UNHANDLED REJECTION! 💥 Shutting down gracefully...');
     console.error(err.name, err.message, err.stack);
-    server.close(() => {
-        process.exit(1);
+    serverPromise.then((server) => {
+        server.close(() => {
+            process.exit(1);
+        });
     });
 });
 
 // Signal termination handling (for Docker/K8s/PM2 process stops)
 process.on('SIGTERM', () => {
     console.info('👋 SIGTERM received. Shutting down gracefully...');
-    server.close(() => {
-        console.log('💥 Process terminated!');
+    serverPromise.then((server) => {
+        server.close(() => {
+            console.log('💥 Process terminated!');
+        });
     });
 });

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { PopupDialog } from "../components/PopupDialog";
+import heroImage from "../assets/sign.jpg";
 
 const ConciergePage: React.FC = () => {
   const navigate = useNavigate();
@@ -47,9 +48,9 @@ const ConciergePage: React.FC = () => {
           action?.();
         }}
       />
-      <div className="mx-auto max-w-3xl">
-        <h1 className="mb-3 text-3xl font-serif sm:text-4xl">Concierge</h1>
-        <p className="mb-8 text-stone-600">
+      <div className="max-w-3xl mx-auto">
+        <h1 className="text-4xl font-serif mb-3">Concierge</h1>
+        <p className="text-stone-600 mb-8">
           Need personalized help booking services, curated packages, or priority
           scheduling? Submit a concierge request and our team will respond
           within 24 hours.
@@ -61,13 +62,13 @@ const ConciergePage: React.FC = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Your name"
-              className="w-full rounded-lg border border-stone-200 p-3"
+              className="w-full p-3 rounded-lg border border-stone-200"
             />
             <input
               value={contact}
               onChange={(e) => setContact(e.target.value)}
               placeholder="Email or phone"
-              className="w-full rounded-lg border border-stone-200 p-3"
+              className="w-full p-3 rounded-lg border border-stone-200"
             />
           </div>
 
@@ -76,12 +77,12 @@ const ConciergePage: React.FC = () => {
               value={city}
               onChange={(e) => setCity(e.target.value)}
               placeholder="City"
-              className="w-full rounded-lg border border-stone-200 p-3"
+              className="w-full p-3 rounded-lg border border-stone-200"
             />
             <select
               value={serviceType}
               onChange={(e) => setServiceType(e.target.value)}
-              className="w-full rounded-lg border border-stone-200 bg-white p-3"
+              className="w-full p-3 rounded-lg border border-stone-200 bg-white"
             >
               <option value="">Service Type (optional)</option>
               <option value="facial">Facial</option>
@@ -95,17 +96,17 @@ const ConciergePage: React.FC = () => {
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             placeholder="Any preferences, dates, or notes"
-            className="h-32 w-full rounded-lg border border-stone-200 p-3"
+            className="w-full p-3 rounded-lg border border-stone-200 h-32"
           />
 
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <button className="min-h-11 rounded-md bg-[#6B554D] px-5 py-3 text-white">
+          <div className="flex items-center gap-4">
+            <button className="px-5 py-3 bg-[#6B554D] text-white rounded-md">
               Send Request
             </button>
             <button
               type="button"
               onClick={() => navigate(-1)}
-              className="min-h-11 rounded-md bg-stone-200 px-5 py-3"
+              className="px-5 py-3 bg-stone-200 rounded-md"
             >
               Cancel
             </button>

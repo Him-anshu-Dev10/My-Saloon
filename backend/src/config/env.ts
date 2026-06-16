@@ -15,6 +15,8 @@ const envSchema = z.object({
   SUPABASE_ANON_KEY: z.string().optional(),
 
   SUPABASE_DB_URL: z.string().optional(),
+
+  DATABASE_URL: z.string().optional(),
 });
 
 const envVars = envSchema.safeParse(process.env);

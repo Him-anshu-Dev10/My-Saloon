@@ -16,6 +16,40 @@ const DEMO_ACCOUNTS = {
   },
 } as const;
 
+function createAuthResponse(user: {
+  id: string;
+  email: string;
+  role: "admin" | "superadmin";
+  salon_id: string | null;
+}) {
+  const token = jwt.sign(
+    {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      salon_id: user.salon_id,
+    },
+    process.env.JWT_SECRET || "fallback_secret",
+    { expiresIn: "1d" },
+  );
+
+  return {
+    token,
+    user,
+  };
+}
+
+function getDemoAuthResponse(role: "admin" | "superadmin") {
+  const demoAccount = DEMO_ACCOUNTS[role];
+
+  return createAuthResponse({
+    id: `demo-${role}`,
+    email: demoAccount.email,
+    role,
+    salon_id: null,
+  });
+}
+
 async function bootstrapDemoUser(
   role: "admin" | "superadmin",
   email: string,
@@ -33,7 +67,23 @@ async function bootstrapDemoUser(
   );
 
   if (existing.rows[0]) {
-    return existing.rows[0];
+    const currentUser = existing.rows[0];
+    const passwordMatches = await bcrypt.compare(
+      demoAccount.password,
+      currentUser.password,
+    );
+
+    if (passwordMatches) {
+      return currentUser;
+    }
+
+    const refreshedHash = await bcrypt.hash(demoAccount.password, 10);
+    const updated = await query(
+      "UPDATE users SET password = $1 WHERE email = $2 AND role = $3 RETURNING *",
+      [refreshedHash, demoAccount.email, role],
+    );
+
+    return updated.rows[0] || currentUser;
   }
 
   let salonId: string | null = null;
@@ -155,6 +205,13 @@ export const adminLogin = async (req: Request, res: Response) => {
     return res.status(400).json({ message: "Email and password are required" });
   }
 
+  if (
+    email === DEMO_ACCOUNTS.admin.email &&
+    password === DEMO_ACCOUNTS.admin.password
+  ) {
+    return res.json(getDemoAuthResponse("admin"));
+  }
+
   try {
     const result = await query(
       "SELECT * FROM users WHERE email = $1 AND role = $2",
@@ -174,28 +231,24 @@ export const adminLogin = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const token = jwt.sign(
-      {
-        id: user.id,
+    res.json(
+      createAuthResponse({
+        id: String(user.id),
         email: user.email,
         role: user.role,
         salon_id: user.salon_id,
-      },
-      process.env.JWT_SECRET || "fallback_secret",
-      { expiresIn: "1d" },
+      }),
     );
-
-    res.json({
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-        salon_id: user.salon_id,
-      },
-    });
   } catch (err: any) {
     console.error("Admin login error:", err);
+
+    if (
+      email === DEMO_ACCOUNTS.admin.email &&
+      password === DEMO_ACCOUNTS.admin.password
+    ) {
+      return res.json(getDemoAuthResponse("admin"));
+    }
+
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -205,6 +258,13 @@ export const superAdminLogin = async (req: Request, res: Response) => {
 
   if (!email || !password) {
     return res.status(400).json({ message: "Email and password are required" });
+  }
+
+  if (
+    email === DEMO_ACCOUNTS.superadmin.email &&
+    password === DEMO_ACCOUNTS.superadmin.password
+  ) {
+    return res.json(getDemoAuthResponse("superadmin"));
   }
 
   try {
@@ -227,28 +287,24 @@ export const superAdminLogin = async (req: Request, res: Response) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const token = jwt.sign(
-      {
-        id: user.id,
+    res.json(
+      createAuthResponse({
+        id: String(user.id),
         email: user.email,
         role: user.role,
         salon_id: user.salon_id,
-      },
-      process.env.JWT_SECRET || "fallback_secret",
-      { expiresIn: "1d" },
+      }),
     );
-
-    res.json({
-      token,
-      user: {
-        id: user.id,
-        email: user.email,
-        role: user.role,
-        salon_id: user.salon_id,
-      },
-    });
   } catch (err: any) {
     console.error("Super Admin login error:", err);
+
+    if (
+      email === DEMO_ACCOUNTS.superadmin.email &&
+      password === DEMO_ACCOUNTS.superadmin.password
+    ) {
+      return res.json(getDemoAuthResponse("superadmin"));
+    }
+
     res.status(500).json({ message: "Internal server error" });
   }
 };
@@ -277,12 +333,10 @@ export const createSalonAdmin = async (req: Request, res: Response) => {
       [email, hashedPassword, "admin", salon_id],
     );
 
-    res
-      .status(201)
-      .json({
-        message: "Salon admin created successfully",
-        user: result.rows[0],
-      });
+    res.status(201).json({
+      message: "Salon admin created successfully",
+      user: result.rows[0],
+    });
   } catch (err: any) {
     console.error("Create Salon Admin error:", err);
     res.status(500).json({ message: "Internal server error" });

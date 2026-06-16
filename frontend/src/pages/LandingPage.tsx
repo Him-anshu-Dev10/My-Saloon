@@ -18,7 +18,7 @@ import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 import { formatINR } from "../utils/currency";
 import { API_BASE_URL } from "../services/apiBase";
-import adminBackground from "../assets/admin.png";
+import heroImage from "../assets/sign.jpg";
 
 interface LandingPageProps {
   location: string;
@@ -29,6 +29,7 @@ interface LandingPageProps {
   onSelectSalon?: (salon: string) => void;
   latitude?: number | null;
   longitude?: number | null;
+  locationPermission?: "unknown" | "granted" | "denied";
 }
 
 export function LandingPageWrapper(
@@ -82,12 +83,17 @@ export function LandingPage({
   onSelectSalon,
   latitude,
   longitude,
+  locationPermission = "unknown",
 }: LandingPageProps) {
   const isVerified = sessionStorage.getItem("isVerified") === "true";
   const userName = sessionStorage.getItem("userName");
   const [salons, setSalons] = useState<any[]>([]);
   const hasAreaSearch =
     typeof latitude === "number" && typeof longitude === "number";
+  const userCoordinates = hasAreaSearch
+    ? ([latitude, longitude] as [number, number])
+    : null;
+  const showMapPermissionPrompt = locationPermission === "denied";
 
   const [isFetching, setIsFetching] = useState(false);
 
@@ -206,13 +212,13 @@ export function LandingPage({
   return (
     <div className="min-h-screen overflow-x-hidden bg-[#FDFBF9] font-sans text-stone-800">
       {/* Hero Section */}
-      <main className="relative mx-auto flex max-w-7xl flex-col items-start gap-12 px-4 py-10 sm:px-6 sm:py-14 lg:flex-row lg:items-center lg:px-8 lg:py-16">
+      <main className="relative mx-auto flex h-155 max-w-7xl items-center px-4 py-10 sm:px-6 sm:py-14 lg:px-8 lg:py-16">
         {/* Background Image/Overlay */}
         <div className="absolute right-0 top-0 -z-10 hidden h-full w-[48%] overflow-hidden rounded-[40px] shadow-[0_20px_60px_rgba(0,0,0,0.08)] lg:block">
           <img
-            src={adminBackground}
+            src={heroImage}
             alt="Salon background"
-            className="h-full w-full object-cover object-center opacity-85 blur-[1px]"
+            className="w-full h-full object-cover object-center opacity-85 blur-[1px]"
           />
           <div className="absolute inset-0 bg-linear-to-r from-[#FDFBF9]/20 via-[#FDFBF9]/10 to-transparent"></div>
         </div>
@@ -508,7 +514,14 @@ export function LandingPage({
                           <p className="text-[9px] text-stone-400 uppercase tracking-wider mb-0.5">
                             Starts From
                           </p>
-                          <p className="text-base font-bold text-stone-800">
+                          <p className="font-bold text-stone-800 text-base">
+                            ${s.starting_price || "—"}
+                          </p>
+
+                          <p className="text-[9px] text-stone-400 uppercase tracking-wider mb-0.5">
+                            Starts From
+                          </p>
+                          <p className="font-bold text-stone-800 text-base">
                             {s.starting_price
                               ? formatINR(s.starting_price)
                               : "—"}
@@ -548,134 +561,165 @@ export function LandingPage({
 
           {/* Right Column: Live Map Container */}
           <div className="relative z-10 h-80 w-full overflow-hidden rounded-4xl border border-stone-100 bg-stone-100 shadow-[0_10px_40px_rgba(0,0,0,0.08)] sm:h-105 lg:sticky lg:top-6 lg:h-155">
-            <MapContainer
-              center={mapCenter}
-              zoom={mapZoom}
-              className="w-full h-full"
-              zoomControl={true}
-            >
-              {/* Premium Subtle Tile Layer */}
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-              />
+            {!showMapPermissionPrompt ? (
+              <MapContainer
+                center={mapCenter}
+                zoom={mapZoom}
+                className="h-full w-full"
+                zoomControl={true}
+              >
+                <TileLayer
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                  url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                />
 
-              <MapController center={mapCenter} zoom={mapZoom} />
+                <MapController center={mapCenter} zoom={mapZoom} />
 
-              {/* User location pin if latitude/longitude are set */}
-              {typeof latitude === "number" &&
-                typeof longitude === "number" && (
+                {userCoordinates && (
                   <Marker
-                    position={[latitude, longitude]}
+                    position={userCoordinates}
                     icon={L.divIcon({
-                      html: `<div class="relative w-8 h-8 flex items-center justify-center">
-                      <div class="absolute w-full h-full rounded-full bg-blue-500 animate-ping opacity-30"></div>
-                      <div class="w-4 h-4 rounded-full bg-blue-500 border-2 border-white shadow-md"></div>
-                    </div>`,
+                      html: `<div class="relative flex h-8 w-8 items-center justify-center">
+                        <div class="absolute h-full w-full rounded-full bg-blue-500 animate-ping opacity-30"></div>
+                        <div class="h-4 w-4 rounded-full bg-blue-500 border-2 border-white shadow-md"></div>
+                      </div>`,
                       className: "user-location-marker",
                       iconSize: [24, 24],
                     })}
                   >
                     <Popup>
-                      <div className="p-1 font-medium text-xs">
+                      <div className="p-1 text-xs font-medium">
                         Your Current Location
                       </div>
                     </Popup>
                   </Marker>
                 )}
 
-              {/* Salon Markers */}
-              {salons.map((s) => {
-                const lat = Number(s.latitude);
-                const lon = Number(s.longitude);
-                if (isNaN(lat) || isNaN(lon)) return null;
+                {salons.map((s) => {
+                  const lat = Number(s.latitude);
+                  const lon = Number(s.longitude);
+                  if (Number.isNaN(lat) || Number.isNaN(lon)) return null;
 
-                const isActive = selectedSalonId === s.id;
+                  const isActive = selectedSalonId === s.id;
 
-                return (
-                  <Marker
-                    key={s.id}
-                    position={[lat, lon]}
-                    icon={createCustomMarker(isActive)}
-                    eventHandlers={{
-                      click: () => {
-                        setSelectedSalonId(s.id);
-                        setMapCenter([lat, lon]);
-                        setMapZoom(14);
+                  return (
+                    <Marker
+                      key={s.id}
+                      position={[lat, lon]}
+                      icon={createCustomMarker(isActive)}
+                      eventHandlers={{
+                        click: () => {
+                          setSelectedSalonId(s.id);
+                          setMapCenter([lat, lon]);
+                          setMapZoom(14);
 
-                        // Scroll salon card into view
-                        const cardEl = document.getElementById(
-                          `salon-card-${s.id}`,
-                        );
-                        cardEl?.scrollIntoView({
-                          behavior: "smooth",
-                          block: "nearest",
-                        });
-                      },
-                    }}
-                  >
-                    <Popup maxWidth={280}>
-                      <div className="p-1.5 flex flex-col gap-2 font-sans text-stone-800">
-                        <img
-                          src={
-                            s.image ||
-                            "https://images.unsplash.com/photo-1595476108010-b4d1f10d5e43?q=80&w=800&auto=format&fit=crop"
-                          }
-                          alt={s.name}
-                          className="w-full h-24 object-cover rounded-lg"
-                        />
-                        <div>
-                          <h4 className="font-serif text-sm font-semibold mb-0.5 text-stone-900">
-                            {s.name}
-                          </h4>
-                          <p className="text-[10px] text-stone-500 mb-1 flex items-center gap-1">
-                            <span aria-hidden="true">📍</span>
-                            {s.city || "New York"}
-                          </p>
+                          const cardEl = document.getElementById(
+                            `salon-card-${s.id}`,
+                          );
+                          cardEl?.scrollIntoView({
+                            behavior: "smooth",
+                            block: "nearest",
+                          });
+                        },
+                      }}
+                    >
+                      <Popup maxWidth={280}>
+                        <div className="flex flex-col gap-2 p-1.5 font-sans text-stone-800">
+                          <img
+                            src={
+                              s.image ||
+                              "https://images.unsplash.com/photo-1595476108010-b4d1f10d5e43?q=80&w=800&auto=format&fit=crop"
+                            }
+                            alt={s.name}
+                            className="h-24 w-full rounded-lg object-cover"
+                          />
+                          <div>
+                            <h4 className="mb-0.5 font-serif text-sm font-semibold text-stone-900">
+                              {s.name}
+                            </h4>
+                            <p className="mb-1 flex items-center gap-1 text-[10px] text-stone-500">
+                              <span aria-hidden="true">📍</span>
+                              {s.city || "New York"}
+                            </p>
 
-                          <div className="flex items-center gap-2 text-xs font-semibold mb-2">
-                            <span className="flex items-center gap-0.5 text-[#C49B89]">
-                              <Star size={10} fill="#C49B89" />{" "}
-                              {s.rating || "5.0"}
-                            </span>
-                            <span className="text-stone-400 font-normal">
-                              •
-                            </span>
-                            <span className="text-stone-700">
-                              Starts from ${s.starting_price}
-                            </span>
+                            <div className="mb-2 flex items-center gap-2 text-xs font-semibold">
+                              <span className="flex items-center gap-0.5 text-[#C49B89]">
+                                <Star size={10} fill="#C49B89" />{" "}
+                                {s.rating || "5.0"}
+                              </span>
+                              <span className="text-stone-400 font-normal">
+                                •
+                              </span>
+                              <span className="text-stone-700">
+                                Starts from {formatINR(s.starting_price)}
+                              </span>
+                            </div>
 
-                            <span className="text-stone-400 font-normal">
-                              •
-                            </span>
-                            <span className="text-stone-700">
-                              Starts from {formatINR(s.starting_price)}
-                            </span>
-                          </div>
-
-                          <div className="flex gap-2 mt-2">
-                            <button
-                              onClick={() => getGoogleMapsDirections(lat, lon)}
-                              className="flex-1 bg-stone-100 hover:bg-stone-200 text-stone-600 py-1.5 rounded-lg text-[10px] font-semibold flex items-center justify-center gap-1 transition-colors cursor-pointer"
-                            >
-                              <Navigation size={10} /> Directions
-                            </button>
-                            <button
-                              onClick={() => {
-                                if (onSelectSalon) onSelectSalon(s.id);
-                              }}
-                              className="flex-1 bg-[#6B554D] hover:bg-[#5C4841] text-white py-1.5 rounded-lg text-[10px] font-semibold flex items-center justify-center gap-1 transition-all shadow-sm shadow-[#6B554D]/10 cursor-pointer"
-                            >
-                              Book Now <ExternalLink size={10} />
-                            </button>
+                            <div className="mt-2 flex gap-2">
+                              <button
+                                onClick={() =>
+                                  getGoogleMapsDirections(lat, lon)
+                                }
+                                className="flex-1 rounded-lg bg-stone-100 py-1.5 text-[10px] font-semibold text-stone-600 transition-colors hover:bg-stone-200"
+                              >
+                                <Navigation size={10} /> Directions
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (onSelectSalon) onSelectSalon(s.id);
+                                }}
+                                className="flex-1 rounded-lg bg-[#6B554D] py-1.5 text-[10px] font-semibold text-white shadow-sm shadow-[#6B554D]/10 transition-all hover:bg-[#5C4841]"
+                              >
+                                Book Now <ExternalLink size={10} />
+                              </button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </Popup>
-                  </Marker>
-                );
-              })}
-            </MapContainer>
+                      </Popup>
+                    </Marker>
+                  );
+                })}
+              </MapContainer>
+            ) : (
+              <div className="relative flex h-full min-h-155 items-center justify-center overflow-hidden bg-[#F8F2EE] px-8 text-center">
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(196,155,137,0.18),transparent_45%),radial-gradient(circle_at_bottom_right,rgba(107,85,77,0.14),transparent_35%)]" />
+                <div className="absolute left-8 top-8 h-24 w-24 rounded-full bg-white/60 blur-3xl" />
+                <div className="absolute right-10 bottom-10 h-32 w-32 rounded-full bg-[#C49B89]/20 blur-3xl" />
+
+                <div className="relative z-10 max-w-md rounded-4xl border border-white/70 bg-white/75 p-8 shadow-[0_20px_60px_rgba(0,0,0,0.08)] backdrop-blur-xl">
+                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#F4E9E5] text-[#6B554D]">
+                    <MapPin size={26} />
+                  </div>
+                  <h3 className="mb-3 font-serif text-2xl text-stone-900">
+                    Allow location to see the map
+                  </h3>
+                  <p className="mb-6 leading-relaxed text-stone-600">
+                    We need your location permission to show nearby salons and
+                    the map view. If you deny access, this panel will stay here
+                    until you choose to allow it.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={onUseMyLocation}
+                    disabled={isLoadingLocation}
+                    className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#6B554D] px-5 py-3 font-medium text-white shadow-sm transition-colors hover:bg-[#5C4841] disabled:cursor-not-allowed disabled:opacity-70"
+                  >
+                    {isLoadingLocation ? (
+                      <Loader2 size={18} className="animate-spin" />
+                    ) : (
+                      <MapPin size={18} fill="currentColor" />
+                    )}
+                    {isLoadingLocation
+                      ? "Checking permission..."
+                      : "Allow location access"}
+                  </button>
+                  <p className="mt-4 text-xs text-stone-400">
+                    You can still type a city above, but nearby results and the
+                    live map require location access.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>
