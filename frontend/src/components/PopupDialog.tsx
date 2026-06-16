@@ -47,26 +47,28 @@ export function PopupDialog({
   const styles = toneStyles[tone];
 
   return (
-    <div className="fixed top-6 left-1/2 z-[80] flex w-full max-w-sm -translate-x-1/2 flex-col px-4 sm:px-0">
+    <div className="fixed inset-x-4 top-4 z-80 flex w-auto flex-col sm:left-1/2 sm:top-6 sm:w-full sm:max-w-sm sm:-translate-x-1/2 sm:px-0">
       <div
         className={`w-full overflow-hidden rounded-2xl bg-white shadow-2xl ring-1 ${styles.ring} animate-in fade-in slide-in-from-top-4 duration-300`}
       >
-        <div className="flex items-start gap-4 p-5">
+        <div className="flex items-start gap-4 p-4 sm:p-5">
           <div
-            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br ${styles.accent} text-white shadow-md`}
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-linear-to-br ${styles.accent} text-white shadow-md`}
           >
             <span className="text-base font-bold">!</span>
           </div>
           <div className="flex-1 pt-1">
             <h3 className="text-base font-semibold text-stone-900">{title}</h3>
-            <p className="mt-1 text-sm leading-relaxed text-stone-600">{message}</p>
-            
+            <p className="mt-1 text-sm leading-relaxed text-stone-600">
+              {message}
+            </p>
+
             {(onCancel || onConfirm) && (
-              <div className="mt-4 flex gap-3">
+              <div className="mt-4 flex flex-col gap-3 sm:flex-row">
                 {onCancel && (
                   <button
                     onClick={onCancel}
-                    className="rounded-lg border border-stone-200 px-4 py-2 text-xs font-medium text-stone-600 transition-colors hover:bg-stone-50"
+                    className="min-h-11 rounded-lg border border-stone-200 px-4 py-2 text-xs font-medium text-stone-600 transition-colors hover:bg-stone-50"
                   >
                     {cancelLabel}
                   </button>
@@ -74,7 +76,7 @@ export function PopupDialog({
                 {onConfirm && (
                   <button
                     onClick={onConfirm}
-                    className="rounded-lg bg-[#6B554D] px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-[#5C4841]"
+                    className="min-h-11 rounded-lg bg-[#6B554D] px-4 py-2 text-xs font-medium text-white transition-colors hover:bg-[#5C4841]"
                   >
                     {confirmLabel}
                   </button>

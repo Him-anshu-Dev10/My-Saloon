@@ -63,7 +63,7 @@ const createCustomMarker = (isActive: boolean) =>
   L.divIcon({
     html: `<div class="relative flex items-center justify-center">
     <div class="absolute w-10 h-10 rounded-full bg-[#6B554D] ${isActive ? "scale-125 bg-[#C49B89] ring-4 ring-[#C49B89]/20" : "scale-100"} transition-all duration-300 animate-ping opacity-15"></div>
-    <div class="w-8 h-8 rounded-full bg-gradient-to-br ${isActive ? "from-[#C49B89] to-[#6B554D] scale-110 shadow-xl ring-2 ring-white" : "from-[#6B554D] to-[#5C4841]"} flex items-center justify-center text-white font-bold transition-all duration-300">
+    <div class="w-8 h-8 rounded-full bg-linear-to-br ${isActive ? "from-[#C49B89] to-[#6B554D] scale-110 shadow-xl ring-2 ring-white" : "from-[#6B554D] to-[#5C4841]"} flex items-center justify-center text-white font-bold transition-all duration-300">
       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
     </div>
   </div>`,
@@ -204,42 +204,42 @@ export function LandingPage({
   };
 
   return (
-    <div className="min-h-screen bg-[#FDFBF9] font-sans text-stone-800">
+    <div className="min-h-screen overflow-x-hidden bg-[#FDFBF9] font-sans text-stone-800">
       {/* Hero Section */}
-      <main className="relative max-w-7xl mx-auto px-8 pt-16 pb-24 flex h-[620px] items-center">
+      <main className="relative mx-auto flex max-w-7xl flex-col items-start gap-12 px-4 py-10 sm:px-6 sm:py-14 lg:flex-row lg:items-center lg:px-8 lg:py-16">
         {/* Background Image/Overlay */}
-        <div className="absolute top-0 right-0 w-[55%] h-full -z-10 rounded-[40px] overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.08)]">
+        <div className="absolute right-0 top-0 -z-10 hidden h-full w-[48%] overflow-hidden rounded-[40px] shadow-[0_20px_60px_rgba(0,0,0,0.08)] lg:block">
           <img
             src={adminBackground}
             alt="Salon background"
-            className="w-full h-full object-cover object-center opacity-85 blur-[1px]"
+            className="h-full w-full object-cover object-center opacity-85 blur-[1px]"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#FDFBF9]/20 via-[#FDFBF9]/10 to-transparent"></div>
+          <div className="absolute inset-0 bg-linear-to-r from-[#FDFBF9]/20 via-[#FDFBF9]/10 to-transparent"></div>
         </div>
 
-        <div className="max-w-2xl">
+        <div className="w-full max-w-2xl">
           {isVerified ? (
             <>
               <div className="inline-flex items-center gap-2 bg-[#F4E9E5] text-[#6B554D] text-sm font-medium px-4 py-1.5 rounded-full mb-5">
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                 You're all set
               </div>
-              <h1 className="text-[2.7rem] md:text-[3rem] leading-[1.1] font-serif mb-4 text-stone-900">
+              <h1 className="max-w-xl text-[clamp(2.25rem,7vw,3.75rem)] leading-[1.05] font-serif mb-4 text-stone-900">
                 Welcome, {userName}!
               </h1>
-              <p className="text-stone-500 text-lg mb-10 max-w-[420px] leading-relaxed">
+              <p className="max-w-[42ch] text-base sm:text-lg mb-10 leading-relaxed text-stone-500">
                 Great to see you again! Explore top-rated salons near you and
                 book your next pampering session instantly.
               </p>
             </>
           ) : (
             <>
-              <h1 className="text-[3.5rem] leading-[1.1] font-serif mb-6 text-stone-900">
+              <h1 className="max-w-2xl text-[clamp(2.5rem,8vw,4.5rem)] leading-[1.05] font-serif mb-6 text-stone-900">
                 Find & Book Top Salons Near
                 <br />
                 You Instantly
               </h1>
-              <p className="text-stone-500 text-lg mb-10 max-w-[420px] leading-relaxed">
+              <p className="max-w-[42ch] text-base sm:text-lg mb-10 leading-relaxed text-stone-500">
                 Real-time availability. Verified salons. Instant booking.
                 Elevate your self-care routine with curated professionals.
               </p>
@@ -247,12 +247,12 @@ export function LandingPage({
           )}
 
           {/* Search/Location Form */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-12">
+          <div className="mb-12 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
             <button
               type="button"
               onClick={() => onUseMyLocation()}
               disabled={isLoadingLocation}
-              className="flex items-center justify-center gap-2 bg-[#6B554D] hover:bg-[#5C4841] text-white px-6 py-3.5 rounded-lg font-medium transition-colors w-full sm:w-auto shrink-0 shadow-sm disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
+              className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#6B554D] px-6 py-3.5 font-medium text-white shadow-sm transition-colors hover:bg-[#5C4841] disabled:cursor-not-allowed disabled:opacity-70 sm:w-auto sm:min-w-45 cursor-pointer"
             >
               {isLoadingLocation ? (
                 <Loader2 size={18} className="text-white animate-spin" />
@@ -263,21 +263,21 @@ export function LandingPage({
             </button>
             <form
               onSubmit={handleSearchSubmit}
-              className="w-full max-w-[420px]"
+              className="w-full max-w-none sm:max-w-105"
             >
-              <div className="h-[10px]">
+              <div className="h-2.5">
                 {location && !isLoadingLocation && (
                   <div className="mb-2 flex items-center gap-2 text-sm text-stone-500 animate-in fade-in duration-300"></div>
                 )}
               </div>
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row">
                 <div className="relative flex-1">
                   <input
                     type="text"
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                     placeholder="Enter city manually..."
-                    className="w-full pl-5 pr-12 py-3.5 rounded-lg border border-stone-200 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-[#C49B89] focus:border-transparent text-stone-600"
+                    className="w-full rounded-lg border border-stone-200 bg-white py-3.5 pl-5 pr-12 text-stone-600 shadow-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-[#C49B89]"
                   />
                   <MapPin
                     size={18}
@@ -286,7 +286,7 @@ export function LandingPage({
                 </div>
                 <button
                   type="submit"
-                  className="flex items-center justify-center gap-2 bg-[#C49B89] hover:bg-[#b78675] text-white px-6 py-3.5 rounded-lg font-medium transition-colors w-full sm:w-auto shrink-0 shadow-sm cursor-pointer"
+                  className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-[#C49B89] px-6 py-3.5 font-medium text-white shadow-sm transition-colors hover:bg-[#b78675] sm:w-auto sm:min-w-40 cursor-pointer"
                 >
                   <Search size={18} />
                   Search Salons
@@ -296,7 +296,7 @@ export function LandingPage({
           </div>
 
           {/* Stats/Badges */}
-          <div className="flex items-center gap-8 text-sm font-medium text-stone-500 uppercase tracking-wide">
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm font-medium uppercase tracking-wide text-stone-500">
             <div className="flex items-center gap-2">
               <CheckCircle2
                 size={18}
@@ -318,14 +318,17 @@ export function LandingPage({
       </main>
 
       {/* Advanced Search & Filtering Section */}
-      <section id="results-section" className="max-w-7xl mx-auto px-8 pb-32">
-        <div className="bg-white rounded-3xl p-6 shadow-[0_4px_30px_rgba(0,0,0,0.03)] border border-stone-100 mb-8">
+      <section
+        id="results-section"
+        className="mx-auto max-w-7xl px-4 pb-20 sm:px-6 sm:pb-28 lg:px-8"
+      >
+        <div className="mb-8 rounded-3xl border border-stone-100 bg-white p-4 shadow-[0_4px_30px_rgba(0,0,0,0.03)] sm:p-6">
           <h2 className="text-xl font-serif mb-4 flex items-center gap-2 text-stone-800">
             <Filter size={18} className="text-[#C49B89]" />
             Find Your Perfect Experience
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-5">
             {/* Salon Name search */}
             <div className="relative">
               <Search
@@ -337,7 +340,7 @@ export function LandingPage({
                 placeholder="Search salon name..."
                 value={searchName}
                 onChange={(e) => setSearchName(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C49B89] bg-stone-50/50"
+                className="w-full rounded-xl border border-stone-200 bg-stone-50/50 py-3 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#C49B89]"
               />
             </div>
 
@@ -352,7 +355,7 @@ export function LandingPage({
                 placeholder="Search by city..."
                 value={searchCity}
                 onChange={(e) => setSearchCity(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C49B89] bg-stone-50/50"
+                className="w-full rounded-xl border border-stone-200 bg-stone-50/50 py-3 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-[#C49B89]"
               />
             </div>
 
@@ -363,7 +366,7 @@ export function LandingPage({
                 placeholder="Service (e.g. Haircut)"
                 value={filterService}
                 onChange={(e) => setFilterService(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C49B89] bg-stone-50/50"
+                className="w-full rounded-xl border border-stone-200 bg-stone-50/50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#C49B89]"
               />
             </div>
 
@@ -373,7 +376,7 @@ export function LandingPage({
               onChange={(e) =>
                 setFilterRating(e.target.value ? Number(e.target.value) : "")
               }
-              className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C49B89] bg-stone-50/50"
+              className="w-full rounded-xl border border-stone-200 bg-stone-50/50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#C49B89]"
             >
               <option value="">Any Rating</option>
               <option value="4.0">4.0+ Stars</option>
@@ -393,16 +396,16 @@ export function LandingPage({
                     e.target.value ? Number(e.target.value) : "",
                   )
                 }
-                className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#C49B89] bg-stone-50/50"
+                className="w-full rounded-xl border border-stone-200 bg-stone-50/50 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#C49B89]"
               />
             </div>
           </div>
         </div>
 
         {/* Live Map Split View */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.2fr] gap-8 items-start">
+        <div className="grid grid-cols-1 gap-8 items-start lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
           {/* Left Column: Salon List */}
-          <div className="flex flex-col gap-5 lg:max-h-[800px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-stone-200 scrollbar-track-transparent">
+          <div className="flex flex-col gap-5 xl:max-h-200 xl:overflow-y-auto xl:pr-2 scrollbar-thin scrollbar-thumb-stone-200 scrollbar-track-transparent">
             {isFetching ? (
               <div className="bg-white rounded-2xl p-12 border border-stone-100 text-center text-stone-500 shadow-sm">
                 <Loader2
@@ -440,21 +443,21 @@ export function LandingPage({
                         Number(s.longitude),
                       )
                     }
-                    className={`bg-white rounded-2xl p-4 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.03)] border transition-all duration-300 flex gap-5 hover:shadow-md cursor-pointer group ${
+                    className={`group flex cursor-pointer flex-col gap-4 rounded-2xl border bg-white p-4 shadow-[0_2px_12px_-4px_rgba(0,0,0,0.03)] transition-all duration-300 hover:shadow-md sm:flex-row sm:gap-5 ${
                       isActive
                         ? "border-[#C49B89] bg-[#FDFBF9] shadow-lg ring-2 ring-[#C49B89]/10 scale-[1.01]"
                         : "border-stone-100"
                     }`}
                   >
                     {/* Salon Image */}
-                    <div className="w-[110px] h-[110px] shrink-0 rounded-xl overflow-hidden bg-stone-100 relative">
+                    <div className="relative aspect-16/10 w-full shrink-0 overflow-hidden rounded-xl bg-stone-100 sm:h-27.5 sm:w-27.5">
                       <img
                         src={
                           s.image ||
                           "https://images.unsplash.com/photo-1595476108010-b4d1f10d5e43?q=80&w=800&auto=format&fit=crop"
                         }
                         alt={s.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                       />
                       {s.rating >= 4.8 && (
                         <span className="absolute top-2 left-2 bg-[#6B554D] text-white text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shadow-md">
@@ -464,26 +467,26 @@ export function LandingPage({
                     </div>
 
                     {/* Salon Details */}
-                    <div className="flex-1 flex flex-col justify-between py-0.5">
-                      <div>
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="font-serif text-lg font-medium text-stone-800 mb-0.5 group-hover:text-[#C49B89] transition-colors">
+                    <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
+                      <div className="min-w-0">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <h3 className="mb-0.5 truncate font-serif text-lg font-medium text-stone-800 transition-colors group-hover:text-[#C49B89]">
                               {s.name}
                             </h3>
-                            <p className="text-xs text-stone-400 mb-1 flex items-center gap-1">
+                            <p className="mb-1 flex items-center gap-1 text-xs text-stone-400">
                               <MapPin size={12} className="text-stone-300" />
                               <span aria-hidden="true">📍</span>
                               {s.city || "New York"}
                             </p>
                           </div>
-                          <button className="text-stone-300 hover:text-red-400 transition-colors p-1 rounded-full hover:bg-stone-50">
+                          <button className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full p-2 text-stone-300 transition-colors hover:bg-stone-50 hover:text-red-400">
                             <Heart size={18} />
                           </button>
                         </div>
 
-                        <div className="flex items-center gap-3 text-xs mt-1">
-                          <span className="flex items-center gap-1 font-semibold text-stone-600 bg-stone-100 px-2 py-0.5 rounded">
+                        <div className="mt-1 flex flex-wrap items-center gap-3 text-xs">
+                          <span className="flex items-center gap-1 rounded bg-stone-100 px-2 py-0.5 font-semibold text-stone-600">
                             <Star
                               size={12}
                               fill="#C49B89"
@@ -492,7 +495,7 @@ export function LandingPage({
                             {s.rating || "5.0"}
                           </span>
                           {s.distance_km && (
-                            <span className="text-stone-400 font-medium">
+                            <span className="font-medium text-stone-400">
                               {parseFloat(s.distance_km).toFixed(1)} km away
                             </span>
                           )}
@@ -500,25 +503,18 @@ export function LandingPage({
                       </div>
 
                       {/* Pricing & Booking CTA */}
-                      <div className="flex justify-between items-end mt-2 pt-2 border-t border-stone-50">
+                      <div className="mt-3 flex flex-col gap-3 border-t border-stone-50 pt-3 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                           <p className="text-[9px] text-stone-400 uppercase tracking-wider mb-0.5">
                             Starts From
                           </p>
-                          <p className="font-bold text-stone-800 text-base">
-                            ${s.starting_price || "—"}
-                          </p>
-
-                          <p className="text-[9px] text-stone-400 uppercase tracking-wider mb-0.5">
-                            Starts From
-                          </p>
-                          <p className="font-bold text-stone-800 text-base">
+                          <p className="text-base font-bold text-stone-800">
                             {s.starting_price
                               ? formatINR(s.starting_price)
                               : "—"}
                           </p>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2 sm:justify-end">
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -527,7 +523,7 @@ export function LandingPage({
                                 Number(s.longitude),
                               );
                             }}
-                            className="bg-stone-100 hover:bg-stone-200 text-stone-600 p-2.5 rounded-xl transition-colors cursor-pointer"
+                            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-xl bg-stone-100 p-3 text-stone-600 transition-colors hover:bg-stone-200 cursor-pointer"
                             title="Get Directions"
                           >
                             <Navigation size={15} />
@@ -537,7 +533,7 @@ export function LandingPage({
                               e.stopPropagation();
                               if (onSelectSalon) onSelectSalon(s.id);
                             }}
-                            className="bg-[#6B554D] hover:bg-[#5C4841] text-white px-5 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all shadow-md shadow-[#6B554D]/10 hover:shadow-lg cursor-pointer"
+                            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#6B554D] px-5 py-3 text-xs font-semibold tracking-wide text-white shadow-md shadow-[#6B554D]/10 transition-all hover:bg-[#5C4841] hover:shadow-lg cursor-pointer"
                           >
                             Book Now
                           </button>
@@ -551,7 +547,7 @@ export function LandingPage({
           </div>
 
           {/* Right Column: Live Map Container */}
-          <div className="rounded-[2.5rem] w-full h-[620px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-stone-100 overflow-hidden sticky top-6 bg-stone-100 relative z-10">
+          <div className="relative z-10 h-80 w-full overflow-hidden rounded-4xl border border-stone-100 bg-stone-100 shadow-[0_10px_40px_rgba(0,0,0,0.08)] sm:h-105 lg:sticky lg:top-6 lg:h-155">
             <MapContainer
               center={mapCenter}
               zoom={mapZoom}

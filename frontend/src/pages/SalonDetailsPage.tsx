@@ -1,11 +1,4 @@
-import {
-  Star,
-  Clock,
-  Plus,
-  ArrowRight,
-  X,
-  Loader2,
-} from "lucide-react";
+import { Star, Clock, Plus, ArrowRight, X, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PopupDialog } from "../components/PopupDialog";
@@ -206,9 +199,9 @@ export function SalonDetailsPage() {
         </div>
       )}
 
-      <main className="max-w-6xl mx-auto px-8 pb-32">
+      <main className="mx-auto max-w-6xl px-4 pb-20 sm:px-6 sm:pb-28 lg:px-8">
         {/* Header Hero Image */}
-        <div className="relative w-full h-[380px] rounded-[32px] overflow-hidden mb-10 shadow-md">
+        <div className="relative mb-10 h-64 w-full overflow-hidden rounded-4xl shadow-md sm:h-80 lg:h-95">
           <img
             src={
               salon?.image ||
@@ -218,14 +211,14 @@ export function SalonDetailsPage() {
             className="w-full h-full object-cover object-center"
           />
           {/* Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent"></div>
+          <div className="absolute inset-0 bg-linear-to-t from-black/80 via-black/10 to-transparent"></div>
 
           {/* Content on Image */}
-          <div className="absolute bottom-8 left-8 text-white z-10">
-            <h1 className="text-3xl font-serif font-medium mb-3">
+          <div className="absolute bottom-6 left-6 z-10 text-white sm:bottom-8 sm:left-8">
+            <h1 className="mb-3 text-2xl font-serif font-medium sm:text-3xl">
               {salon?.name || "Glowup Atelier"}
             </h1>
-            <div className="flex items-center gap-4 text-sm font-medium text-white/90">
+            <div className="flex flex-wrap items-center gap-3 text-sm font-medium text-white/90 sm:gap-4">
               <span className="flex items-center py-1 px-3 bg-black/20 backdrop-blur-md rounded-full gap-1.5">
                 <Star size={14} className="text-[#DEB5A4]" fill="#DEB5A4" />{" "}
                 {salon?.rating || "4.9"}{" "}
@@ -240,21 +233,21 @@ export function SalonDetailsPage() {
         </div>
 
         {/* Main Detail Grid Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-14 items-start">
+        <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-14">
           {/* Left Content Column */}
           <div className="flex flex-col">
             {/* Tabs */}
-            <div className="flex items-center gap-8 border-b border-stone-200 mb-8 pb-[1px]">
-              <button className="text-stone-800 border-b-2 border-stone-800 pb-3 text-sm font-medium">
+            <div className="mb-8 flex gap-6 overflow-x-auto border-b border-stone-200 pb-px sm:gap-8">
+              <button className="whitespace-nowrap border-b-2 border-stone-800 pb-3 text-sm font-medium text-stone-800">
                 Services
               </button>
-              <button className="text-stone-400 hover:text-stone-800 border-b-2 border-transparent pb-3 text-sm font-medium transition-colors">
+              <button className="whitespace-nowrap border-b-2 border-transparent pb-3 text-sm font-medium text-stone-400 transition-colors hover:text-stone-800">
                 Gallery
               </button>
-              <button className="text-stone-400 hover:text-stone-800 border-b-2 border-transparent pb-3 text-sm font-medium transition-colors">
+              <button className="whitespace-nowrap border-b-2 border-transparent pb-3 text-sm font-medium text-stone-400 transition-colors hover:text-stone-800">
                 Reviews
               </button>
-              <button className="text-stone-400 hover:text-stone-800 border-b-2 border-transparent pb-3 text-sm font-medium transition-colors">
+              <button className="whitespace-nowrap border-b-2 border-transparent pb-3 text-sm font-medium text-stone-400 transition-colors hover:text-stone-800">
                 About
               </button>
             </div>
@@ -278,7 +271,7 @@ export function SalonDetailsPage() {
                       <div
                         key={service.id}
                         onClick={() => toggleService(service)}
-                        className={`bg-white border rounded-2xl p-6 shadow-sm flex items-center justify-between group hover:shadow-md transition-all cursor-pointer ${
+                        className={`group flex cursor-pointer flex-col gap-4 rounded-2xl border bg-white p-5 shadow-sm transition-all hover:shadow-md sm:flex-row sm:items-center sm:justify-between sm:p-6 ${
                           isSelected
                             ? "border-[#C49B89] bg-[#FDFBF9] shadow-[0_4px_20px_-4px_rgba(196,155,137,0.15)] scale-[1.01]"
                             : "border-stone-100 hover:border-stone-200"
@@ -297,7 +290,7 @@ export function SalonDetailsPage() {
                           </p>
                         </div>
                         <button
-                          className={`w-10 h-10 rounded-full border flex items-center justify-center transition-all cursor-pointer ${
+                          className={`flex h-11 w-11 items-center justify-center rounded-full border transition-all cursor-pointer ${
                             isSelected
                               ? "bg-[#C49B89] border-[#C49B89] text-white rotate-45"
                               : "border-stone-200 text-[#C49B89] group-hover:bg-[#C49B89] group-hover:text-white"
@@ -314,7 +307,7 @@ export function SalonDetailsPage() {
           </div>
 
           {/* Right Sticky Booking Panel */}
-          <div className="bg-white border border-stone-100 shadow-xl shadow-stone-200/40 rounded-3xl p-7 sticky top-8">
+          <div className="bg-white border border-stone-100 shadow-xl shadow-stone-200/40 rounded-3xl p-5 lg:sticky lg:top-8 sm:p-7">
             <h2 className="font-serif text-lg font-medium text-stone-800 mb-6">
               Booking Summary
             </h2>
@@ -324,7 +317,7 @@ export function SalonDetailsPage() {
               {selectedServices.map((s) => (
                 <div
                   key={s.id}
-                  className="flex justify-between items-start pb-3 border-b border-stone-50"
+                  className="flex flex-col gap-2 border-b border-stone-50 pb-3 sm:flex-row sm:items-start sm:justify-between"
                 >
                   <div>
                     <h4 className="text-stone-800 font-medium text-[15px]">
@@ -348,7 +341,7 @@ export function SalonDetailsPage() {
             )}
 
             {/* Price Breakdown */}
-            <div className="flex flex-col gap-3 mb-6 pt-3 border-t border-stone-100">
+            <div className="mb-6 flex flex-col gap-3 border-t border-stone-100 pt-3">
               <div className="flex justify-between items-center text-[15px] text-stone-500">
                 <span>Subtotal</span>
                 <span>{formatINR(subtotal)}</span>
@@ -360,7 +353,7 @@ export function SalonDetailsPage() {
             </div>
 
             {/* Total */}
-            <div className="flex justify-between items-center text-lg font-medium text-stone-800 mb-8 pt-4 border-t border-stone-100">
+            <div className="mb-8 flex items-center justify-between border-t border-stone-100 pt-4 text-lg font-medium text-stone-800">
               <span>Total</span>
               <span>{formatINR(total)}</span>
             </div>

@@ -50,7 +50,7 @@ export const CountryCodeSelector: React.FC<CountryCodeSelectorProps> = ({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 bg-[#F6F5F2] border border-transparent focus:border-[#C49B89] focus:ring-1 focus:ring-[#C49B89] focus:bg-white rounded-l-xl px-4 py-3.5 outline-none transition-all text-stone-700 h-full w-[110px] justify-between"
+        className="flex h-full w-23 items-center justify-between gap-2 rounded-l-xl border border-transparent bg-[#F6F5F2] px-3 py-3.5 text-stone-700 outline-none transition-all focus:border-[#C49B89] focus:bg-white focus:ring-1 focus:ring-[#C49B89] sm:w-27.5"
       >
         <span className="flex items-center gap-2 text-base">
           {selected.flag} {selected.dialCode}
@@ -59,7 +59,7 @@ export const CountryCodeSelector: React.FC<CountryCodeSelectorProps> = ({
       </button>
 
       {isOpen && (
-        <div className="absolute z-10 top-full left-0 mt-2 w-[280px] bg-white border border-stone-200 rounded-xl shadow-xl overflow-hidden py-2 max-h-60 overflow-y-auto">
+        <div className="absolute left-0 top-full z-10 mt-2 max-h-60 w-[min(18rem,calc(100vw-1rem))] overflow-y-auto overflow-hidden rounded-xl border border-stone-200 bg-white py-2 shadow-xl">
           {countries.map((country) => (
             <button
               key={country.code}

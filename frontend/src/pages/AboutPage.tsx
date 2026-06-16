@@ -33,14 +33,14 @@ export default function AboutPage() {
 
   return (
     <div className="min-h-screen bg-[#FDFBF9] text-stone-800">
-      <main className="mx-auto max-w-7xl px-8 py-16">
+      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-16 lg:px-8">
         <section className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] items-center">
           <div>
             <div className="inline-flex items-center gap-2 rounded-full bg-[#F4E9E5] px-4 py-2 text-sm font-medium text-[#6B554D] mb-6">
               <Heart size={14} fill="currentColor" />
               Glowup About
             </div>
-            <h1 className="font-serif text-4xl md:text-5xl leading-tight text-stone-900 mb-6">
+            <h1 className="font-serif text-3xl leading-tight text-stone-900 mb-6 sm:text-4xl md:text-5xl">
               A calmer way to discover salons you actually want to book.
             </h1>
             <p className="max-w-2xl text-lg leading-relaxed text-stone-600 mb-8">
@@ -65,13 +65,13 @@ export default function AboutPage() {
             </div>
           </div>
 
-          <div className="relative overflow-hidden rounded-[32px] border border-stone-100 bg-white shadow-[0_10px_40px_rgba(0,0,0,0.08)]">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-4xl border border-stone-100 bg-white shadow-[0_10px_40px_rgba(0,0,0,0.08)] sm:aspect-[5/4] lg:aspect-[4/5]">
             <img
               src="https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?q=80&w=2069&auto=format&fit=crop"
               alt="Salon interior"
               className="h-full w-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/10 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
               <p className="mb-2 text-xs uppercase tracking-[0.35em] text-white/70">
                 Glowup experience

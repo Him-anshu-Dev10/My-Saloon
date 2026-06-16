@@ -17,7 +17,7 @@ const MembershipsPage: React.FC = () => {
   });
 
   return (
-    <div className="min-h-screen bg-[#FDFBF9] px-8 py-20">
+    <div className="min-h-screen bg-[#FDFBF9] px-4 py-12 sm:px-6 sm:py-20 lg:px-8">
       <PopupDialog
         open={popup.open}
         title={popup.title}
@@ -26,17 +26,17 @@ const MembershipsPage: React.FC = () => {
         confirmLabel="OK"
         onConfirm={() => setPopup((prev) => ({ ...prev, open: false }))}
       />
-      <div className="max-w-4xl mx-auto text-center">
-        <h1 className="text-4xl font-serif mb-4">Memberships</h1>
-        <p className="text-stone-600 mb-8 text-lg">
+      <div className="mx-auto max-w-4xl text-center">
+        <h1 className="mb-4 text-3xl font-serif sm:text-4xl">Memberships</h1>
+        <p className="mb-8 text-base text-stone-600 sm:text-lg">
           Coming soon — stay tuned! We're working on memberships to provide
           exclusive perks, discounts, and priority bookings.
         </p>
 
-        <div className="flex items-center justify-center gap-4">
+        <div className="flex flex-col items-stretch justify-center gap-4 sm:flex-row sm:items-center">
           <button
             onClick={() => navigate(-1)}
-            className="px-5 py-2 rounded-md bg-[#6B554D] text-white"
+            className="min-h-11 rounded-md bg-[#6B554D] px-5 py-3 text-white"
           >
             Go Back
           </button>
@@ -49,7 +49,7 @@ const MembershipsPage: React.FC = () => {
                 tone: "success",
               })
             }
-            className="px-5 py-2 rounded-md bg-[#C49B89] text-white"
+            className="min-h-11 rounded-md bg-[#C49B89] px-5 py-3 text-white"
           >
             Notify Me
           </button>

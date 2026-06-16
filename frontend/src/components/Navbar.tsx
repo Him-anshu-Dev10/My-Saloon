@@ -58,11 +58,11 @@ const Navbar: React.FC = () => {
           : "bg-transparent"
       }`}
     >
-      <div className="flex items-center justify-between px-8 py-4 mx-auto max-w-7xl">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
         {/* Logo */}
         <button
           onClick={handleGlowupReload}
-          className="text-2xl font-semibold font-serif text-[#C49B89] hover:text-[#b08774] transition-colors cursor-pointer"
+          className="text-xl font-semibold font-serif text-[#C49B89] transition-colors hover:text-[#b08774] sm:text-2xl cursor-pointer"
           title="Reload Glowup"
         >
           Glowup
@@ -78,7 +78,7 @@ const Navbar: React.FC = () => {
                 onClick={() => navigate(link.path)}
                 className={`relative py-1 transition-colors hover:text-stone-900 cursor-pointer ${
                   isActive
-                    ? "text-stone-900 after:absolute after:bottom-0 after:left-0 after:w-full after:h-[2px] after:bg-stone-900 font-semibold"
+                    ? "text-stone-900 after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-stone-900 font-semibold"
                     : ""
                 }`}
               >
@@ -89,20 +89,20 @@ const Navbar: React.FC = () => {
         </div>
 
         {/* Right Side */}
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           {/* Conditional rendering: logged in vs logged out */}
           {!isVerified ? (
             // NOT LOGGED IN: Show "Sign In" on home, "Home" on other pages
             isHome ? (
               <button
-                className="hidden md:block bg-[#6B554D] hover:bg-[#5C4841] text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all hover:shadow-lg hover:shadow-[#6B554D]/20"
+                className="hidden min-h-11 items-center justify-center rounded-lg bg-[#6B554D] px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-[#5C4841] hover:shadow-lg hover:shadow-[#6B554D]/20 md:inline-flex md:px-6"
                 onClick={() => navigate("/signin")}
               >
                 Sign In
               </button>
             ) : (
               <button
-                className="hidden md:block bg-[#6B554D] hover:bg-[#5C4841] text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-all hover:shadow-lg hover:shadow-[#6B554D]/20"
+                className="hidden min-h-11 items-center justify-center rounded-lg bg-[#6B554D] px-4 py-2.5 text-sm font-medium text-white transition-all hover:bg-[#5C4841] hover:shadow-lg hover:shadow-[#6B554D]/20 md:inline-flex md:px-6"
                 onClick={() => navigate("/")}
               >
                 Home
@@ -113,13 +113,13 @@ const Navbar: React.FC = () => {
             <div className="hidden md:flex items-center gap-3">
               <button
                 onClick={() => navigate("/my-bookings")}
-                className="text-stone-600 hover:text-[#C49B89] font-medium text-sm px-3 py-2 transition-all mr-2 flex items-center gap-1.5 cursor-pointer"
+                className="flex min-h-11 items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-stone-600 transition-all hover:text-[#C49B89] cursor-pointer"
               >
                 My Bookings
               </button>
               {/* Circular avatar with first letter of email */}
               <div className="flex items-center gap-2">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#C49B89] to-[#6B554D] flex items-center justify-center text-white text-sm font-bold shadow-md ring-2 ring-white">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-linear-to-br from-[#C49B89] to-[#6B554D] text-sm font-bold text-white shadow-md ring-2 ring-white">
                   {avatarLetter}
                 </div>
                 <span className="font-medium text-sm text-[#6B554D]">
@@ -139,7 +139,7 @@ const Navbar: React.FC = () => {
 
           {/* Mobile Menu Toggle */}
           <button
-            className="md:hidden text-stone-600 hover:text-stone-900 p-2 rounded-lg hover:bg-stone-100 transition-colors"
+            className="md:hidden inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg p-2 text-stone-600 transition-colors hover:bg-stone-100 hover:text-stone-900"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
@@ -150,7 +150,7 @@ const Navbar: React.FC = () => {
       {/* Mobile Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden bg-white/95 backdrop-blur-xl border-t border-stone-100 shadow-lg">
-          <div className="px-8 py-4 flex flex-col gap-3">
+          <div className="flex flex-col gap-2 px-4 py-4 sm:px-6">
             {navLinks.map((link, i) => (
               <button
                 key={i}
@@ -158,7 +158,7 @@ const Navbar: React.FC = () => {
                   navigate(link.path);
                   setMobileMenuOpen(false);
                 }}
-                className="text-sm font-medium text-stone-600 hover:text-stone-900 py-2 transition-colors text-left cursor-pointer"
+                className="flex min-h-11 items-center rounded-lg px-3 text-sm font-medium text-stone-600 transition-colors hover:bg-stone-50 hover:text-stone-900 text-left cursor-pointer"
               >
                 {link.label}
               </button>
@@ -166,7 +166,7 @@ const Navbar: React.FC = () => {
 
             {!isVerified ? (
               <button
-                className="bg-[#6B554D] hover:bg-[#5C4841] text-white px-6 py-2.5 rounded-lg text-sm font-medium transition-colors w-full mt-2"
+                className="mt-2 flex min-h-11 w-full items-center justify-center rounded-lg bg-[#6B554D] px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-[#5C4841]"
                 onClick={() => {
                   navigate(isHome ? "/signin" : "/");
                   setMobileMenuOpen(false);
@@ -181,13 +181,13 @@ const Navbar: React.FC = () => {
                     navigate("/my-bookings");
                     setMobileMenuOpen(false);
                   }}
-                  className="text-stone-600 hover:text-[#C49B89] font-medium text-sm py-2 text-left cursor-pointer"
+                  className="flex min-h-11 items-center rounded-lg px-3 text-left text-sm font-medium text-stone-600 transition-colors hover:bg-stone-50 hover:text-[#C49B89] cursor-pointer"
                 >
                   My Bookings
                 </button>
                 <div className="flex items-center justify-between py-2 border-t border-stone-100 mt-1">
                   <div className="flex items-center gap-2">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#C49B89] to-[#6B554D] flex items-center justify-center text-white text-sm font-bold shadow-md ring-2 ring-white">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-linear-to-br from-[#C49B89] to-[#6B554D] text-sm font-bold text-white shadow-md ring-2 ring-white">
                       {avatarLetter}
                     </div>
                     <span className="font-medium text-sm text-[#6B554D]">
@@ -195,7 +195,7 @@ const Navbar: React.FC = () => {
                     </span>
                   </div>
                   <button
-                    className="flex items-center gap-1.5 bg-stone-100 hover:bg-red-50 text-stone-600 hover:text-red-600 px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                    className="flex min-h-11 items-center gap-1.5 rounded-lg bg-stone-100 px-4 py-2 text-sm font-medium text-stone-600 transition-all hover:bg-red-50 hover:text-red-600"
                     onClick={handleLogout}
                   >
                     <LogOut size={14} />

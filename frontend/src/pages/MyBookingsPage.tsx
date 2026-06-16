@@ -150,7 +150,7 @@ export function MyBookingsPage() {
         onCancel={popup.onCancel}
       />
       {/* Header View */}
-      <nav className="flex items-center justify-between px-8 py-5 mx-auto max-w-6xl">
+      <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6 lg:px-8">
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate("/")}
@@ -174,7 +174,7 @@ export function MyBookingsPage() {
         </button>
       </nav>
 
-      <main className="max-w-4xl mx-auto px-8 pt-8">
+      <main className="mx-auto max-w-4xl px-4 pt-8 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-2 mb-10">
           <h1 className="font-serif text-3xl md:text-4xl font-medium text-stone-900">
             My Appointments
@@ -191,11 +191,11 @@ export function MyBookingsPage() {
               return (
                 <div
                   key={booking.id}
-                  className={`bg-white rounded-3xl p-6 md:p-8 shadow-[0_4px_25px_-5px_rgba(0,0,0,0.03)] border transition-all ${isCancelled ? "opacity-70 border-stone-100 bg-[#FAF9F7]" : "border-stone-100 hover:shadow-md hover:border-stone-200"}`}
+                  className={`bg-white rounded-3xl p-5 sm:p-6 md:p-8 shadow-[0_4px_25px_-5px_rgba(0,0,0,0.03)] border transition-all ${isCancelled ? "opacity-70 border-stone-100 bg-[#FAF9F7]" : "border-stone-100 hover:shadow-md hover:border-stone-200"}`}
                 >
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
                     {/* Left: Info details */}
-                    <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid flex-1 grid-cols-1 gap-4 md:grid-cols-2">
                       {/* Stylist & Style */}
                       <div className="flex gap-4 items-start">
                         <div className="w-12 h-12 rounded-2xl bg-[#F9F4F2] flex items-center justify-center text-[#CA9A86] shrink-0 shadow-inner">
@@ -241,8 +241,8 @@ export function MyBookingsPage() {
                     </div>
 
                     {/* Right: Payment details, Status Badge, Cancel option */}
-                    <div className="flex flex-col md:items-end justify-between gap-4 md:border-l md:border-stone-100 md:pl-8 shrink-0">
-                      <div className="flex items-center md:justify-end gap-3">
+                    <div className="flex shrink-0 flex-col gap-4 md:justify-between md:border-l md:border-stone-100 md:pl-8 md:items-end">
+                      <div className="flex flex-wrap items-center gap-3 md:justify-end">
                         <span
                           className={`px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider ${isCancelled ? "bg-red-50 text-red-600" : "bg-green-50 text-green-600"}`}
                         >
@@ -258,7 +258,7 @@ export function MyBookingsPage() {
                         </span>
                       </div>
 
-                      <div className="text-sm text-stone-500 flex items-center gap-1.5 md:justify-end">
+                      <div className="flex items-center gap-1.5 text-sm text-stone-500 md:justify-end">
                         <CreditCard size={14} />
                         <span className="capitalize">
                           {booking.payment_method?.replace("_", " ") || "cash"}
@@ -269,7 +269,7 @@ export function MyBookingsPage() {
                         <button
                           onClick={() => handleCancelBooking(booking.id)}
                           disabled={cancellingId === booking.id}
-                          className="flex items-center gap-1 text-xs text-red-500 hover:text-red-700 font-semibold transition-colors mt-2 md:justify-end disabled:opacity-50"
+                          className="mt-2 flex items-center gap-1 text-xs font-semibold text-red-500 transition-colors hover:text-red-700 md:justify-end disabled:opacity-50"
                         >
                           {cancellingId === booking.id ? (
                             <Loader2 className="animate-spin" size={12} />
@@ -286,7 +286,7 @@ export function MyBookingsPage() {
             })}
           </div>
         ) : (
-          <div className="bg-white rounded-3xl p-12 shadow-sm border border-stone-100 flex flex-col items-center justify-center text-center gap-6">
+          <div className="bg-white rounded-3xl p-8 sm:p-12 shadow-sm border border-stone-100 flex flex-col items-center justify-center text-center gap-6">
             <div className="w-20 h-20 rounded-full bg-[#FAF9F7] flex items-center justify-center text-stone-300">
               <Calendar size={36} />
             </div>
@@ -301,7 +301,7 @@ export function MyBookingsPage() {
             </div>
             <button
               onClick={() => navigate("/")}
-              className="bg-[#CA9A86] hover:bg-[#B38775] text-white px-6 py-3 rounded-xl font-medium transition-colors shadow-sm text-sm flex items-center gap-2"
+              className="flex min-h-11 items-center gap-2 rounded-xl bg-[#CA9A86] px-6 py-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-[#B38775]"
             >
               Explore Salons <ChevronRight size={16} />
             </button>

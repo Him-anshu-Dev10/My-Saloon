@@ -356,7 +356,7 @@ export function CheckoutPage() {
         onConfirm={() => setPopup((prev) => ({ ...prev, open: false }))}
       />
       {/* Detail View Navbar */}
-      <nav className="flex items-center justify-between px-8 py-5 mx-auto max-w-6xl">
+      <nav className="mx-auto flex max-w-6xl items-center justify-between px-4 py-5 sm:px-6 lg:px-8">
         <div className="flex items-center gap-4">
           <button
             onClick={() => {
@@ -395,8 +395,8 @@ export function CheckoutPage() {
         </div>
       </nav>
 
-      <main className="max-w-6xl mx-auto px-8 pt-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-12 items-start">
+      <main className="mx-auto max-w-6xl px-4 pt-8 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-10 items-start lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:gap-12">
           {/* Left Content Column */}
           <div className="flex flex-col gap-10">
             {/* STEP 1: SERVICE & SLOT */}
@@ -407,7 +407,7 @@ export function CheckoutPage() {
                   Select Service & Time
                 </h2>
 
-                <div className="bg-white rounded-[24px] p-8 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-100 flex flex-col gap-8">
+                <div className="bg-white rounded-3xl p-8 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-100 flex flex-col gap-8">
                   {/* Service Selection */}
                   <div>
                     <h3 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-4">
@@ -453,13 +453,13 @@ export function CheckoutPage() {
                     <h3 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-4">
                       2. Select Stylist
                     </h3>
-                    <div className="flex gap-4 overflow-x-auto pb-2 -mx-2 px-2 scrollbar-hide">
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                       {filteredTeamMembers.length > 0 ? (
                         filteredTeamMembers.map((st) => (
                           <div
                             key={st.id}
                             onClick={() => handleUpdate("stylist", st.name)}
-                            className={`flex-shrink-0 w-[140px] p-4 rounded-xl border-2 cursor-pointer transition-all flex flex-col items-center gap-3 text-center ${bookingData.stylist === st.name ? "border-[#CA9A86] bg-[#F9F4F2]" : "border-stone-100 bg-white hover:border-stone-200"}`}
+                            className={`flex cursor-pointer flex-col items-center gap-3 rounded-xl border-2 p-4 text-center transition-all ${bookingData.stylist === st.name ? "border-[#CA9A86] bg-[#F9F4F2]" : "border-stone-100 bg-white hover:border-stone-200"}`}
                           >
                             <div className="w-14 h-14 rounded-full bg-stone-200 overflow-hidden flex items-center justify-center">
                               {st.image_url ? (
@@ -563,7 +563,7 @@ export function CheckoutPage() {
                   Contact Details
                 </h2>
 
-                <div className="bg-white rounded-[24px] p-8 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-100 flex flex-col gap-6">
+                <div className="bg-white rounded-3xl p-8 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-100 flex flex-col gap-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="flex flex-col gap-2">
                       <label className="text-sm font-medium text-stone-600">
@@ -620,7 +620,7 @@ export function CheckoutPage() {
                       placeholder="Any allergies, requests, etc."
                       value={bookingData.notes}
                       onChange={(e) => handleUpdate("notes", e.target.value)}
-                      className="bg-[#F6F5F2] border-transparent focus:border-[#C49B89] focus:ring-1 focus:ring-[#C49B89] focus:bg-white rounded-xl px-5 py-3.5 outline-none transition-all text-stone-700 min-h-[100px] resize-none"
+                      className="min-h-25 rounded-xl border-transparent bg-[#F6F5F2] px-5 py-3.5 text-stone-700 outline-none transition-all focus:border-[#C49B89] focus:bg-white focus:ring-1 focus:ring-[#C49B89] resize-none"
                     />
                   </div>
 
@@ -642,7 +642,7 @@ export function CheckoutPage() {
                   Payment Method
                 </h2>
 
-                <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="grid grid-cols-1 gap-4 mb-6 sm:grid-cols-2">
                   <button
                     onClick={() =>
                       handleUpdate("payment_method", "credit_card")
@@ -735,7 +735,7 @@ export function CheckoutPage() {
                   </button>
                 </div>
 
-                <div className="bg-white rounded-[24px] p-8 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-100 flex flex-col gap-6">
+                <div className="bg-white rounded-3xl p-6 shadow-[0_2px_20px_-4px_rgba(0,0,0,0.04)] border border-stone-100 flex flex-col gap-6 sm:p-8">
                   {bookingData.payment_method === "credit_card" && (
                     <div className="animate-in fade-in flex flex-col gap-6">
                       <div className="flex flex-col gap-2">
@@ -812,14 +812,14 @@ export function CheckoutPage() {
           </div>
 
           {/* Right Summary Sticky Panel */}
-          <div className="bg-white border border-stone-100 shadow-[0_8px_30px_-6px_rgba(0,0,0,0.05)] rounded-[32px] overflow-hidden sticky top-8">
+          <div className="bg-white border border-stone-100 shadow-[0_8px_30px_-6px_rgba(0,0,0,0.05)] rounded-4xl overflow-hidden lg:sticky lg:top-8">
             <div className="w-full h-32 relative">
               <img
                 src="https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=2874&auto=format&fit=crop"
                 className="w-full h-full object-cover"
                 alt="Salon header"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+              <div className="absolute inset-0 bg-linear-to-t from-black/80 to-transparent"></div>
               <div className="absolute bottom-4 left-5 text-white">
                 <h3 className="font-serif text-xl font-medium mb-1">
                   The Aurelia Atelier
@@ -830,7 +830,7 @@ export function CheckoutPage() {
               </div>
             </div>
 
-            <div className="p-7 flex flex-col gap-6">
+            <div className="p-5 flex flex-col gap-6 sm:p-7">
               {/* Specifics */}
               {bookingData.serviceName ? (
                 <div className="flex justify-between items-start">
@@ -852,7 +852,7 @@ export function CheckoutPage() {
                 </div>
               )}
 
-              <div className="h-[1px] w-full bg-stone-100"></div>
+              <div className="h-px w-full bg-stone-100"></div>
 
               <div className="flex flex-col gap-4">
                 <div className="flex gap-4">
@@ -883,7 +883,7 @@ export function CheckoutPage() {
               </div>
 
               {/* Price Breakdown container */}
-              <div className="border border-stone-100 bg-[#FCFBFB] rounded-[24px] p-6 mt-2 flex flex-col gap-3">
+              <div className="border border-stone-100 bg-[#FCFBFB] rounded-3xl p-6 mt-2 flex flex-col gap-3">
                 <div className="flex justify-between items-center text-[13px] text-stone-500">
                   <span>Base Price</span>
                   <span>{formatINR(bookingData.total_price)}</span>
