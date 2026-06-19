@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import Layout from '../components/Layout'
 import { api } from '../services/api'
+import { API_BASE_URL } from '../services/apiBase'
 import './pages.css'
 import dayjs from 'dayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
@@ -141,7 +142,7 @@ export default function BookingsPage({ user, onLogout }: Props) {
         salon_id: user?.salon_id || null
       };
       
-      const res = await fetch('http://localhost:3000/api/v1/bookings', {
+      const res = await fetch(`${API_BASE_URL}/bookings`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
