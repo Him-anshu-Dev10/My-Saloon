@@ -1,6 +1,6 @@
-const API_URL = import.meta.env.DEV
-  ? "http://localhost:3000/api/v1"
-  : (import.meta.env.VITE_API_URL as string) || "http://localhost:3000/api/v1";
+import { API_BASE_URL } from "./apiBase";
+
+const API_URL = API_BASE_URL;
 
 export const auth = {
   login: async (email: string, password: string) => {

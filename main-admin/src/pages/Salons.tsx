@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import Layout from "../components/Layout";
+import { API_BASE_URL } from "../services/apiBase";
 
 export default function Salons() {
   const [showModal, setShowModal] = useState(false);
@@ -35,7 +36,7 @@ export default function Salons() {
   const [adminPassword, setAdminPassword] = useState("");
   const [adminSalonId, setAdminSalonId] = useState("");
 
-  const VITE_BACKEND_URL = "http://localhost:3000/api/v1";
+  const VITE_BACKEND_URL = API_BASE_URL;
 
   const fetchSalons = async () => {
     try {

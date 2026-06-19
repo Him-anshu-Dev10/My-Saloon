@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
+import { API_BASE_URL } from '../services/apiBase';
 
 export default function Dashboard() {
   const [bookings, setBookings] = useState<any[]>([]);
@@ -9,8 +10,8 @@ export default function Dashboard() {
     const fetchData = async () => {
       try {
         const [bookingsRes, salonsRes] = await Promise.all([
-          fetch('http://localhost:3000/api/v1/bookings/all'),
-          fetch('http://localhost:3000/api/v1/salons')
+          fetch(`${API_BASE_URL}/bookings/all`),
+          fetch(`${API_BASE_URL}/salons`)
         ]);
         
         const bData = await bookingsRes.json();
