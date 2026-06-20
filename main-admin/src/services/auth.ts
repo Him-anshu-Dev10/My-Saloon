@@ -31,7 +31,20 @@ export const auth = {
     return localStorage.getItem("superadmin_user");
   },
   getToken: (): string | null => {
-    return localStorage.getItem("superadmin_token");
+    const token = localStorage.getItem("superadmin_token");
+
+    if (!token) {
+      return null;
+    }
+
+    const normalized = token.trim();
+
+    if (!normalized || normalized === "null" || normalized === "undefined") {
+      localStorage.removeItem("superadmin_token");
+      return null;
+    }
+
+    return normalized;
   },
   logout: () => {
     localStorage.removeItem("superadmin_user");

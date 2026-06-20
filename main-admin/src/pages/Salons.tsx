@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import Layout from "../components/Layout";
+import { auth } from "../services/auth";
 
 export default function Salons() {
   const [showModal, setShowModal] = useState(false);
@@ -36,6 +37,18 @@ export default function Salons() {
   const [adminSalonId, setAdminSalonId] = useState("");
 
   const VITE_BACKEND_URL = "http://localhost:3000/api/v1";
+
+  const getSuperAdminToken = () => {
+    const token = auth.getToken();
+
+    if (!token) {
+      alert("Your super admin session has expired. Please sign in again.");
+      window.location.href = "/login";
+      return null;
+    }
+
+    return token;
+  };
 
   const fetchSalons = async () => {
     try {
@@ -95,6 +108,9 @@ export default function Salons() {
 
   const handleCreateOrUpdate = async () => {
     if (submittingSalonRef.current) return;
+    const token = getSuperAdminToken();
+    if (!token) return;
+
     submittingSalonRef.current = true;
     setIsSubmittingSalon(true);
     try {
@@ -114,7 +130,7 @@ export default function Salons() {
         method,
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("superadmin_token")}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       });
@@ -181,11 +197,14 @@ export default function Salons() {
 
   const handleDelete = async (id: string) => {
     if (!window.confirm("Are you sure you want to delete this salon?")) return;
+    const token = getSuperAdminToken();
+    if (!token) return;
+
     try {
       const res = await fetch(`${VITE_BACKEND_URL}/admin/salons/${id}`, {
         method: "DELETE",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("superadmin_token")}`,
+          Authorization: `Bearer ${token}`,
         },
       });
       if (res.ok) {
@@ -201,6 +220,9 @@ export default function Salons() {
 
   const handleCreateAdmin = async () => {
     if (submittingAdminRef.current) return;
+    const token = getSuperAdminToken();
+    if (!token) return;
+
     submittingAdminRef.current = true;
     setIsSubmittingAdmin(true);
     try {
@@ -208,7 +230,7 @@ export default function Salons() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("superadmin_token")}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           email: adminEmail,
