@@ -7,6 +7,7 @@ import dayjs from 'dayjs'
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import { DatePicker } from '@mui/x-date-pickers/DatePicker'
+import CircularProgress from '@mui/material/CircularProgress';
 
 type Props = {
   user: any
@@ -212,8 +213,9 @@ export default function BookingsPage({ user, onLogout }: Props) {
         </div>
 
         {loading ? (
-          <div className="empty-state">
-            <p>Loading bookings...</p>
+          <div className="empty-state" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+            <CircularProgress sx={{ color: '#CA9A86' }} size={40} />
+            <p style={{ color: '#7f6f69', fontWeight: 500 }}>Loading bookings...</p>
           </div>
         ) : bookings.length === 0 ? (
           <div className="empty-state">

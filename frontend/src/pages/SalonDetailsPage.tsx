@@ -103,15 +103,7 @@ export function SalonDetailsPage() {
       "selectedSalonServices",
       JSON.stringify(salon?.services || []),
     );
-    setShowPhoneModal(true);
-  };
-
-  const handlePhoneSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (phoneNumber.trim().length >= 10) {
-      setShowPhoneModal(false);
-      navigate("/checkout");
-    }
+    navigate("/checkout");
   };
 
   // Calculations
@@ -146,58 +138,7 @@ export function SalonDetailsPage() {
         confirmLabel="OK"
         onConfirm={() => setPopup((prev) => ({ ...prev, open: false }))}
       />
-      {/* Phone Number Modal */}
-      {showPhoneModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-300">
-          <div className="bg-white rounded-3xl w-full max-w-md p-8 shadow-2xl relative animate-in zoom-in-95 duration-300">
-            <button
-              onClick={() => setShowPhoneModal(false)}
-              className="absolute top-6 right-6 text-stone-400 hover:text-stone-600 transition-colors cursor-pointer"
-            >
-              <X size={20} />
-            </button>
 
-            <h2 className="font-serif text-2xl font-medium text-stone-900 mb-2">
-              Almost there!
-            </h2>
-            <p className="text-stone-500 mb-8 text-sm">
-              Please enter your phone number to proceed with booking. We'll send
-              your confirmation details here.
-            </p>
-
-            <form onSubmit={handlePhoneSubmit} className="flex flex-col gap-6">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-medium text-stone-600">
-                  Phone Number
-                </label>
-                <div className="flex gap-3">
-                  <div className="bg-[#F6F5F2] px-4 py-3.5 rounded-xl border border-stone-200 text-stone-500 font-medium flex items-center shrink-0">
-                    +91
-                  </div>
-                  <input
-                    type="tel"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    placeholder="Enter 10-digit mobile number"
-                    required
-                    maxLength={10}
-                    pattern="[0-9]{10}"
-                    className="bg-[#F6F5F2] border border-transparent focus:border-[#C49B89] focus:ring-1 focus:ring-[#C49B89] focus:bg-white rounded-xl px-5 py-3.5 outline-none transition-all text-stone-700 w-full"
-                  />
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={phoneNumber.length < 10}
-                className="w-full bg-[#6B554D] hover:bg-[#5C4841] disabled:bg-stone-300 disabled:cursor-not-allowed text-white px-6 py-4 rounded-xl font-medium transition-colors shadow-md cursor-pointer"
-              >
-                Continue to Checkout
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
 
       <main className="mx-auto max-w-6xl px-4 pb-20 sm:px-6 sm:pb-28 lg:px-8">
         {/* Header Hero Image */}

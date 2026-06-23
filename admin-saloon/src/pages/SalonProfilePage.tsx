@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import Layout from "../components/Layout";
 import { api } from "../services/api";
 import "./pages.css";
+import CircularProgress from '@mui/material/CircularProgress';
 
 type Props = {
   user: any;
@@ -21,7 +22,10 @@ export default function SalonProfilePage({ user, onLogout }: Props) {
     latitude: "",
     longitude: "",
     image: "",
+    video: "",
   });
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isUploadingVideo, setIsUploadingVideo] = useState(false);
 
 
   const fetchProfile = async () => {
@@ -37,6 +41,7 @@ export default function SalonProfilePage({ user, onLogout }: Props) {
           latitude: String(res.data.latitude || ""),
           longitude: String(res.data.longitude || ""),
           image: res.data.image || "",
+          video: res.data.video || "",
         });
       }
     } catch (err) {
@@ -49,6 +54,36 @@ export default function SalonProfilePage({ user, onLogout }: Props) {
   useEffect(() => {
     fetchProfile();
   }, []);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    try {
+      setIsUploadingImage(true);
+      const res = await api.uploadFile(e.target.files[0]);
+      if (res.success && res.data.url) {
+        setForm({ ...form, image: res.data.url });
+      }
+    } catch (err: any) {
+      alert("Failed to upload image: " + err.message);
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
+
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) return;
+    try {
+      setIsUploadingVideo(true);
+      const res = await api.uploadFile(e.target.files[0]);
+      if (res.success && res.data.url) {
+        setForm({ ...form, video: res.data.url });
+      }
+    } catch (err: any) {
+      alert("Failed to upload video: " + err.message);
+    } finally {
+      setIsUploadingVideo(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,6 +105,7 @@ export default function SalonProfilePage({ user, onLogout }: Props) {
         latitude: form.latitude ? parseFloat(form.latitude) : undefined,
         longitude: form.longitude ? parseFloat(form.longitude) : undefined,
         image: form.image || undefined,
+        video: form.video || undefined,
       });
       setIsEditing(false);
       fetchProfile();
@@ -104,8 +140,9 @@ export default function SalonProfilePage({ user, onLogout }: Props) {
         </div>
 
         {loading ? (
-          <div className="empty-state">
-            <p>Loading profile...</p>
+          <div className="empty-state" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+            <CircularProgress sx={{ color: '#CA9A86' }} size={40} />
+            <p style={{ color: '#7f6f69', fontWeight: 500 }}>Loading profile...</p>
           </div>
         ) : !profile ? (
           <div className="empty-state">
@@ -142,15 +179,30 @@ export default function SalonProfilePage({ user, onLogout }: Props) {
                   />
                 </div>
                 <div className="form-group">
-                  <label>Image URL (Optional)</label>
+                  <label>Background Image</label>
                   <input
-                    type="text"
-                    value={form.image}
-                    onChange={(e) =>
-                      setForm({ ...form, image: e.target.value })
-                    }
-                    placeholder="https://..."
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={isUploadingImage}
                   />
+                  {isUploadingImage && <p style={{fontSize: 12, color: '#CA9A86', marginTop: 4}}>Uploading...</p>}
+                  {form.image && (
+                    <img src={form.image} alt="Preview" style={{ maxWidth: '200px', marginTop: '10px', borderRadius: '8px' }} />
+                  )}
+                </div>
+                <div className="form-group">
+                  <label>Salon Video</label>
+                  <input
+                    type="file"
+                    accept="video/*"
+                    onChange={handleVideoUpload}
+                    disabled={isUploadingVideo}
+                  />
+                  {isUploadingVideo && <p style={{fontSize: 12, color: '#CA9A86', marginTop: 4}}>Uploading...</p>}
+                  {form.video && (
+                    <video src={form.video} controls style={{ maxWidth: '200px', marginTop: '10px', borderRadius: '8px' }} />
+                  )}
                 </div>
                 <div className="form-group">
                   <label>Latitude (Optional)</label>
@@ -220,6 +272,20 @@ export default function SalonProfilePage({ user, onLogout }: Props) {
                       <img
                         src={profile.image}
                         alt="Salon"
+                        style={{ maxWidth: "100%", height: "auto", borderRadius: "8px", marginTop: "8px" }}
+                      />
+                    ) : (
+                      "Not set"
+                    )}
+                  </div>
+                </div>
+                <div className="profile-field">
+                  <div className="field-label">Salon Video</div>
+                  <div className="field-value">
+                    {profile.video ? (
+                      <video
+                        src={profile.video}
+                        controls
                         style={{ maxWidth: "100%", height: "auto", borderRadius: "8px", marginTop: "8px" }}
                       />
                     ) : (

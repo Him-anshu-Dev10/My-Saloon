@@ -403,6 +403,7 @@ export const updateSalonProfile = asyncHandler(
       phone,
       email,
       google_maps_link,
+      video,
     } = req.body;
 
     if (!salon_id) {
@@ -413,7 +414,7 @@ export const updateSalonProfile = asyncHandler(
     }
 
     const result = await query(
-      "UPDATE public.salons SET name = $1, address = $2, city = $3, state = $4, country = $5, starting_price = $6, rating = $7, latitude = $8, longitude = $9, phone = $10, email = $11, google_maps_link = $12, image = $13 WHERE id = $14 RETURNING *",
+      "UPDATE public.salons SET name = $1, address = $2, city = $3, state = $4, country = $5, starting_price = $6, rating = $7, latitude = $8, longitude = $9, phone = $10, email = $11, google_maps_link = $12, image = $13, video = $14 WHERE id = $15 RETURNING *",
       [
         name,
         address || null,
@@ -428,6 +429,7 @@ export const updateSalonProfile = asyncHandler(
         email || null,
         google_maps_link || null,
         image || null,
+        video || null,
         salon_id,
       ],
     );

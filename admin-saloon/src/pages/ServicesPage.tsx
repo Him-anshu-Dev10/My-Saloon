@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import Layout from '../components/Layout'
 import { api } from '../services/api'
 import './pages.css'
+import CircularProgress from '@mui/material/CircularProgress';
 
 type Props = {
   user: any
@@ -130,7 +131,10 @@ export default function ServicesPage({ user, onLogout }: Props) {
         </div>
 
         {loading ? (
-          <div className="empty-state"><p>Loading services...</p></div>
+          <div className="empty-state" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+            <CircularProgress sx={{ color: '#CA9A86' }} size={40} />
+            <p style={{ color: '#7f6f69', fontWeight: 500 }}>Loading services...</p>
+          </div>
         ) : services.length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon">✂️</div>

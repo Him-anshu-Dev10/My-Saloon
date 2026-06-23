@@ -103,7 +103,12 @@ const TreatmentsPage: React.FC<{
                             {formatINR(s.price)}
                           </div>
                           <button
-                            onClick={() => navigate(`/salon/${salon.id}`)}
+                            onClick={() => {
+                              sessionStorage.setItem("selectedSalon", JSON.stringify(salon));
+                              sessionStorage.setItem("selectedServices", JSON.stringify([s]));
+                              sessionStorage.setItem("selectedSalonServices", JSON.stringify(salon.services || []));
+                              navigate(`/checkout`);
+                            }}
                             className="min-h-11 rounded-md bg-[#6B554D] px-3 py-2 text-sm text-white transition-colors hover:bg-[#5C4841]"
                           >
                             Book
@@ -122,7 +127,12 @@ const TreatmentsPage: React.FC<{
                     View Salon
                   </button>
                   <button
-                    onClick={() => navigate(`/checkout`)}
+                    onClick={() => {
+                      sessionStorage.setItem("selectedSalon", JSON.stringify(salon));
+                      sessionStorage.setItem("selectedServices", JSON.stringify([]));
+                      sessionStorage.setItem("selectedSalonServices", JSON.stringify(salon.services || []));
+                      navigate(`/checkout`);
+                    }}
                     className="min-h-11 rounded-md bg-[#C49B89] px-4 py-2 text-sm text-white transition-colors hover:bg-[#b89b8a]"
                   >
                     Continue to Checkout

@@ -139,6 +139,7 @@ export const api = {
     latitude?: number;
     longitude?: number;
     image?: string;
+    video?: string;
   }) => request("PUT", "/admin/salon-profile", data),
 
   createSalonProfile: (data: {
@@ -149,4 +150,25 @@ export const api = {
     latitude?: number;
     longitude?: number;
   }) => request("POST", "/admin/salon-profile", data),
+
+  uploadFile: async (file: File) => {
+    const token = getToken();
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    const res = await fetch(`${API_URL}/upload`, {
+      method: "POST",
+      headers,
+      body: formData,
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Failed to upload file");
+    return data;
+  },
 };

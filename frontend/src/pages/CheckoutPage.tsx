@@ -44,6 +44,7 @@ export function CheckoutPage() {
   });
 
   const [salonServices, setSalonServices] = useState<any[]>([]);
+  const [selectedServicesArr, setSelectedServicesArr] = useState<any[]>([]);
   const [popup, setPopup] = useState<{
     open: boolean;
     title: string;
@@ -57,7 +58,12 @@ export function CheckoutPage() {
   });
 
   const filteredTeamMembers = useMemo(() => {
-    if (!bookingData.hairstyle) return teamMembers;
+    if (selectedServicesArr.length === 0 && !bookingData.hairstyle) return teamMembers;
+    
+    const requiredServiceIds = selectedServicesArr.length > 0 
+      ? selectedServicesArr.map((s) => s.id) 
+      : [bookingData.hairstyle];
+
     return teamMembers.filter((member) => {
       if (
         !Array.isArray(member.service_ids) ||
@@ -65,9 +71,9 @@ export function CheckoutPage() {
       ) {
         return true;
       }
-      return member.service_ids.includes(bookingData.hairstyle);
+      return requiredServiceIds.every((id) => member.service_ids.includes(id));
     });
-  }, [teamMembers, bookingData.hairstyle]);
+  }, [teamMembers, bookingData.hairstyle, selectedServicesArr]);
 
   // Pre-fill user data and selections from sessionStorage
   useEffect(() => {
@@ -161,18 +167,22 @@ export function CheckoutPage() {
 
     fetchSalonServices();
 
-    // Preselect the first selected service from details page if present
+    // Preselect the selected services from details page if present
     const savedSelected = sessionStorage.getItem("selectedServices");
     if (savedSelected) {
       try {
         const list = JSON.parse(savedSelected);
         if (list && list.length > 0) {
-          const first = list[0];
+          setSelectedServicesArr(list);
+          const total = list.reduce((sum: number, s: any) => sum + Number(s.price), 0);
+          const serviceNames = list.map((s: any) => s.name).join(", ");
+          const serviceIds = list.map((s: any) => s.id).join(",");
+          
           setBookingData((prev) => ({
             ...prev,
-            hairstyle: first.id,
-            serviceName: first.name,
-            total_price: Number(first.price),
+            hairstyle: serviceIds,
+            serviceName: serviceNames,
+            total_price: total,
           }));
         }
       } catch (e) {
@@ -411,41 +421,63 @@ export function CheckoutPage() {
                   {/* Service Selection */}
                   <div>
                     <h3 className="text-sm font-bold text-stone-400 uppercase tracking-wider mb-4">
-                      1. Choose Service
+                      1. {selectedServicesArr.length > 0 ? "Selected Services" : "Choose Service"}
                     </h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      {salonServices.map((hs) => (
-                        <div
-                          key={hs.id}
-                          onClick={() => handleSelectHairstyle(hs)}
-                          className={`relative rounded-xl border-2 cursor-pointer overflow-hidden group transition-all ${bookingData.hairstyle === hs.id ? "border-[#CA9A86]" : "border-stone-100 hover:border-stone-300"}`}
-                        >
-                          <div className="h-28 w-full">
-                            <img
-                              src={hs.image}
-                              alt={hs.name}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            />
-                          </div>
-                          <div className="p-4 bg-white">
-                            <h4 className="font-medium text-stone-800 text-sm mb-1">
-                              {hs.name}
-                            </h4>
-                            <div className="flex justify-between items-center text-xs text-stone-500">
-                              <span>{hs.duration}</span>
-                              <span className="font-semibold text-[#CA9A86]">
-                                {formatINR(hs.price)}
-                              </span>
+                    
+                    {selectedServicesArr.length > 0 ? (
+                      <div className="flex flex-col gap-4">
+                        {selectedServicesArr.map((s, idx) => (
+                          <div key={idx} className="flex justify-between items-center bg-[#FDFBF9] p-4 rounded-xl border border-[#CA9A86] shadow-sm">
+                            <div className="flex items-center gap-4">
+                              {s.image && (
+                                <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 bg-stone-100">
+                                  <img src={s.image} alt={s.name} className="w-full h-full object-cover" />
+                                </div>
+                              )}
+                              <div>
+                                <h4 className="font-medium text-stone-800 text-sm mb-1">{s.name}</h4>
+                                <p className="text-xs text-stone-500">{s.duration || "60 mins"}</p>
+                              </div>
                             </div>
+                            <span className="font-semibold text-[#CA9A86]">{formatINR(s.price)}</span>
                           </div>
-                          {bookingData.hairstyle === hs.id && (
-                            <div className="absolute top-2 right-2 w-6 h-6 bg-[#CA9A86] text-white rounded-full flex items-center justify-center">
-                              <CheckCircle2 size={14} />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        {salonServices.map((hs) => (
+                          <div
+                            key={hs.id}
+                            onClick={() => handleSelectHairstyle(hs)}
+                            className={`relative rounded-xl border-2 cursor-pointer overflow-hidden group transition-all ${bookingData.hairstyle === hs.id ? "border-[#CA9A86]" : "border-stone-100 hover:border-stone-300"}`}
+                          >
+                            <div className="h-28 w-full">
+                              <img
+                                src={hs.image}
+                                alt={hs.name}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                              />
                             </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
+                            <div className="p-4 bg-white">
+                              <h4 className="font-medium text-stone-800 text-sm mb-1">
+                                {hs.name}
+                              </h4>
+                              <div className="flex justify-between items-center text-xs text-stone-500">
+                                <span>{hs.duration}</span>
+                                <span className="font-semibold text-[#CA9A86]">
+                                  {formatINR(hs.price)}
+                                </span>
+                              </div>
+                            </div>
+                            {bookingData.hairstyle === hs.id && (
+                              <div className="absolute top-2 right-2 w-6 h-6 bg-[#CA9A86] text-white rounded-full flex items-center justify-center">
+                                <CheckCircle2 size={14} />
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* Stylist Selection */}
