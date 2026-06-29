@@ -515,11 +515,6 @@ export function CheckoutPage() {
                         {selectedServicesArr.map((s, idx) => (
                           <div key={idx} className="flex justify-between items-center bg-[#FDFBF9] p-4 rounded-xl border border-[#CA9A86] shadow-sm">
                             <div className="flex items-center gap-4">
-                              {s.image && (
-                                <div className="w-16 h-16 rounded-lg overflow-hidden shrink-0 bg-stone-100">
-                                  <img src={s.image} alt={s.name} className="w-full h-full object-cover" />
-                                </div>
-                              )}
                               <div>
                                 <h4 className="font-medium text-stone-800 text-sm mb-1">{s.name}</h4>
                                 <p className="text-xs text-stone-500">{s.duration || "60 mins"}</p>

@@ -5,14 +5,17 @@ import { query } from "../config/db";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
+// Ensure env vars are loaded early so we can use them in DEMO_ACCOUNTS
+dotenv.config();
+
 const DEMO_ACCOUNTS = {
   admin: {
     email: "admin@glowup.test",
     password: "admin123",
   },
   superadmin: {
-    email: "superadmin@glowup.test",
-    password: "superadmin123",
+    email: process.env.MAIN_ADMIN_EMAIL || "superadmin@glowup.test",
+    password: process.env.MAIN_ADMIN_PASSWORD || "superadmin123",
   },
 } as const;
 
@@ -102,8 +105,7 @@ async function bootstrapDemoUser(
   return inserted.rows[0] || null;
 }
 
-// Ensure env vars are loaded before creating transporter
-dotenv.config();
+// Env vars are loaded at the top of the file
 
 // Lazily create transporter to ensure env vars are available
 let transporter: nodemailer.Transporter | null = null;
@@ -258,6 +260,9 @@ export const superAdminLogin = async (req: Request, res: Response) => {
   if (!email || !password) {
     return res.status(400).json({ message: "Email and password are required" });
   }
+  
+  console.log("LOGIN ATTEMPT:", email, password);
+  console.log("EXPECTED:", DEMO_ACCOUNTS.superadmin);
 
   if (
     email === DEMO_ACCOUNTS.superadmin.email &&
@@ -320,12 +325,22 @@ export const createSalonAdmin = async (req: Request, res: Response) => {
     const checkResult = await query("SELECT * FROM users WHERE email = $1", [
       email,
     ]);
-    if (checkResult.rows.length > 0) {
-      return res.status(400).json({ message: "User already exists" });
-    }
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
+
+    if (checkResult.rows.length > 0) {
+      // Update existing user's password and salon_id
+      const result = await query(
+        "UPDATE users SET password=$1, role='admin', salon_id=$2 WHERE email=$3 RETURNING id, email, role, salon_id",
+        [hashedPassword, salon_id, email],
+      );
+      return res.status(200).json({
+        success: true,
+        message: "Salon admin updated successfully",
+        user: result.rows[0],
+      });
+    }
 
     const result = await query(
       "INSERT INTO users (email, password, role, salon_id) VALUES ($1, $2, $3, $4) RETURNING id, email, role, salon_id",
@@ -333,6 +348,7 @@ export const createSalonAdmin = async (req: Request, res: Response) => {
     );
 
     res.status(201).json({
+      success: true,
       message: "Salon admin created successfully",
       user: result.rows[0],
     });

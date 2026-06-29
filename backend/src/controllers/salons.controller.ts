@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import asyncHandler from "express-async-handler";
 import { SalonsService } from "../services/salons.service";
 import { query } from "../config/db";
+import { ApiError } from "../exceptions/ApiError";
 
 export class SalonsController {
   private salonsService: SalonsService;
@@ -58,8 +59,7 @@ export class SalonsController {
     // Use findSalonById to include services and reviews
     const salon = await this.salonsService.findSalonById(id);
     if (!salon) {
-      res.status(404);
-      throw new Error("Salon not found");
+      throw ApiError.notFound("Salon not found");
     }
     res.status(200).json({
       success: true,
@@ -72,11 +72,10 @@ export class SalonsController {
    * @desc    Create a new salon
    */
   public createSalon = asyncHandler(async (req: Request, res: Response) => {
-    const { name, city, latitude, longitude, starting_price } = req.body;
+    const { name, city, latitude, longitude, starting_price, address, phone, admin_email, google_maps_link } = req.body;
 
     if (!name || !city) {
-      res.status(400);
-      throw new Error("Please provide name and city");
+      throw ApiError.badRequest("Please provide name and city");
     }
 
     const salon = await this.salonsService.createSalon({
@@ -85,11 +84,43 @@ export class SalonsController {
       latitude,
       longitude,
       starting_price,
+      address,
+      phone,
+      admin_email,
+      google_maps_link,
     });
 
     res.status(201).json({
       success: true,
       data: salon,
+    });
+  });
+
+  /**
+   * @route   PUT /api/v1/salons/:id
+   * @desc    Update an existing salon
+   */
+  public updateSalon = asyncHandler(async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const { name, city, latitude, longitude, starting_price, address, phone, admin_email, google_maps_link } = req.body;
+
+    if (!name || !city) {
+      throw ApiError.badRequest("Please provide name and city");
+    }
+
+    const result = await query(
+      `UPDATE salons SET name=$1, city=$2, latitude=$3, longitude=$4, starting_price=$5, address=$6, phone=$7, google_maps_link=$8, email=$9
+       WHERE id=$10 RETURNING *`,
+      [name, city, latitude || null, longitude || null, starting_price || 0, address || null, phone || null, google_maps_link || null, admin_email || null, id]
+    );
+
+    if (result.rowCount === 0) {
+      throw ApiError.notFound("Salon not found");
+    }
+
+    res.status(200).json({
+      success: true,
+      data: result.rows[0],
     });
   });
 
@@ -102,8 +133,7 @@ export class SalonsController {
     const { user_name, rating, comment } = req.body;
 
     if (!user_name || !rating) {
-      res.status(400);
-      throw new Error("Please provide user_name and rating (1-5)");
+      throw ApiError.badRequest("Please provide user_name and rating (1-5)");
     }
 
     const result = await query(

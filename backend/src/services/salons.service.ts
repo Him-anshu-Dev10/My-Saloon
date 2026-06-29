@@ -152,11 +152,15 @@ export class SalonsService {
     latitude?: number;
     longitude?: number;
     starting_price?: number;
+    address?: string;
+    phone?: string;
+    admin_email?: string;
+    google_maps_link?: string;
   }) {
     try {
       const sql = `
-        INSERT INTO salons (name, city, latitude, longitude, rating, starting_price)
-        VALUES ($1, $2, $3, $4, $5, $6)
+        INSERT INTO salons (name, city, latitude, longitude, rating, starting_price, address, phone, google_maps_link, email, image)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
         RETURNING *;
       `;
       const values = [
@@ -166,6 +170,11 @@ export class SalonsService {
         data.longitude || null,
         0, // default rating
         data.starting_price || 0,
+        data.address || null,
+        data.phone || null,
+        data.google_maps_link || null,
+        data.admin_email || null,
+        '', // default empty image
       ];
 
       const res = await query(sql, values);

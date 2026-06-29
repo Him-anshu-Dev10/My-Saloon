@@ -10,7 +10,4 @@ function normalizeApiBase(url?: string) {
   return trimmed.endsWith("/api/v1") ? trimmed : `${trimmed}/api/v1`;
 }
 
-export const API_BASE_URL =
-  normalizeApiBase(import.meta.env.VITE_API_URL) ||
-  normalizeApiBase(import.meta.env.VITE_BACKEND_URL) ||
-  (import.meta.env.PROD ? deployedApiBase : localApiBase);
+export const API_BASE_URL = "http://localhost:3000/api/v1";

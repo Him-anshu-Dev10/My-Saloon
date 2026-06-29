@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Layout from "../components/Layout";
 import { api } from "../services/api";
+import { API_BASE_URL } from "../services/apiBase";
 import "./pages.css";
 import CircularProgress from '@mui/material/CircularProgress';
 
@@ -25,6 +26,8 @@ export default function TeamPage({ user, onLogout }: Props) {
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
   const submitLockRef = useRef(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [form, setForm] = useState({
     name: "",
     role: "",
@@ -100,6 +103,31 @@ export default function TeamPage({ user, onLogout }: Props) {
     } finally {
       submitLockRef.current = false;
       setIsSubmitting(false);
+    }
+  };
+
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch(`${API_BASE_URL}/upload`, {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success && data.data?.url) {
+        setForm((f) => ({ ...f, image_url: data.data.url }));
+      } else {
+        alert("Upload failed. Please try again.");
+      }
+    } catch (err) {
+      alert("Upload error. Check your connection.");
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
@@ -210,12 +238,48 @@ export default function TeamPage({ user, onLogout }: Props) {
                   />
                 </div>
                 <div className="form-group">
-                  <label>Photo URL (Optional)</label>
+                  <label>Photo (Optional)</label>
+                  {/* Photo preview */}
+                  {form.image_url && (
+                    <div style={{ marginBottom: 10, display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <img
+                        src={form.image_url}
+                        alt="Preview"
+                        style={{ width: 64, height: 64, borderRadius: 12, objectFit: 'cover', border: '2px solid #e7dbd7' }}
+                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setForm({ ...form, image_url: '' })}
+                        style={{ fontSize: 12, color: '#e74c3c', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                      >
+                        Remove photo
+                      </button>
+                    </div>
+                  )}
+                  {/* Upload button */}
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
+                    <button
+                      type="button"
+                      className="btn-sm"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading}
+                      style={{ whiteSpace: 'nowrap' }}
+                    >
+                      {isUploading ? 'Uploading...' : '📷 Upload Photo'}
+                    </button>
+                    <span style={{ fontSize: 12, color: '#999' }}>or paste URL below</span>
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    onChange={handlePhotoUpload}
+                  />
                   <input
                     value={form.image_url}
-                    onChange={(e) =>
-                      setForm({ ...form, image_url: e.target.value })
-                    }
+                    onChange={(e) => setForm({ ...form, image_url: e.target.value })}
                     placeholder="https://..."
                   />
                 </div>

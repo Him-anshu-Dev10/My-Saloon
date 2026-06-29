@@ -18,7 +18,7 @@ export default function Salons() {
   // Form states
   const [editingSalonId, setEditingSalonId] = useState<string | null>(null);
   const [salonForm, setSalonForm] = useState({ 
-    name: '', address: '', phone: '', admin_email: '', 
+    name: '', city: '', address: '', phone: '', admin_email: '', 
     google_maps_link: '', latitude: '', longitude: '' 
   });
   const [isResolvingLocation, setIsResolvingLocation] = useState(false);
@@ -51,7 +51,7 @@ export default function Salons() {
   const openAddSalon = () => {
     setEditingSalonId(null);
     setSalonForm({ 
-      name: '', address: '', phone: '', admin_email: '',
+      name: '', city: '', address: '', phone: '', admin_email: '',
       google_maps_link: '', latitude: '', longitude: ''
     });
     setShowSalonModal(true);
@@ -61,6 +61,7 @@ export default function Salons() {
     setEditingSalonId(salon.id);
     setSalonForm({
       name: salon.name || '',
+      city: salon.city || '',
       address: salon.address || '',
       phone: salon.phone || '',
       admin_email: salon.admin_email || '',
@@ -96,6 +97,7 @@ export default function Salons() {
 
   const handleSaveSalon = async () => {
     if (!salonForm.name) return alert('Name is required');
+    if (!salonForm.city) return alert('City is required');
     setIsSubmittingSalon(true);
     try {
       const url = editingSalonId 
@@ -302,6 +304,15 @@ export default function Salons() {
                       onChange={e => setSalonForm({...salonForm, name: e.target.value})} 
                       placeholder="e.g. Glowup Downtown"
                       autoFocus
+                    />
+                  </div>
+
+                  <div className="flex flex-col gap-1.5 sm:col-span-2">
+                    <label className="text-[11px] font-bold text-stone-500 uppercase tracking-wider">City *</label>
+                    <Input 
+                      value={salonForm.city} 
+                      onChange={e => setSalonForm({...salonForm, city: e.target.value})} 
+                      placeholder="e.g. New York"
                     />
                   </div>
                   

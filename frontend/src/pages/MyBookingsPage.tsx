@@ -250,10 +250,6 @@ export function MyBookingsPage() {
                         </span>
 
                         <span className="font-bold text-lg text-stone-800">
-                          ${Number(booking.total_price).toFixed(2)}
-                        </span>
-
-                        <span className="font-bold text-lg text-stone-800">
                           {formatINR(Number(booking.total_price) || 0)}
                         </span>
                       </div>

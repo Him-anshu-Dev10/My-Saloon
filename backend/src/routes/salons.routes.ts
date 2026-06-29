@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { SalonsController } from '../controllers/salons.controller';
 import { createRateLimit } from '../middlewares/rateLimit';
+import { createSalonAdmin } from '../controllers/auth.controller';
 
 const router = Router();
 const salonsController = new SalonsController();
@@ -15,5 +16,8 @@ router.get('/', salonsController.getSalons);
 router.get('/:id', salonsController.getSalonById);
 router.post('/:id/reviews', writeLimiter, salonsController.createReview);
 router.post('/', writeLimiter, salonsController.createSalon);
+router.put('/:id', writeLimiter, salonsController.updateSalon);
+// Admin creation for a salon (called from main-admin panel)
+router.post('/admin/create', createSalonAdmin);
 
 export default router;
